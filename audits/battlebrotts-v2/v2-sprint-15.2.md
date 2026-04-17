@@ -132,6 +132,36 @@ Pre-existing CI debt to clear:
 - **PR #85** — Optic verify.
 - **`docs/design/sprint15-moonwalk-metric-ruling.md`** — Ruling + both addenda.
 - **Commits:** `88be1b8` (Addendum 1), `4bd7bd7` (Addendum 2), `5e30c8c` (merge).
+- **KB PR:** [#87](https://github.com/brott-studio/battlebrotts-v2/pull/87) — merged `a729d5f`.
+
+---
+
+## KB entries (created this audit)
+
+Written to `brott-studio/battlebrotts-v2` via PR #87 (merged `a729d5f`):
+
+- **`docs/kb/patterns/layered-design-rulings.md`** — When a `TRIVIAL`-sized metric fix surfaces nested design questions (sampling point → period reset → cap freeze), each addendum is correct and makes progress, but aggregate iteration cost exceeds the sizing. Gives Ett/Gizmo signals to detect metric-semantics work up-front and default to `SMALL`+.
+- **`docs/kb/troubleshooting/ci-goal-ambiguity.md`** — When "restore CI green" is the sprint goal but multiple test files are red for independent reasons, name the job + the specific failures in scope + the pre-existing failures explicitly out of scope. Prevents the narrow-met/broad-not-met framing trap that S15.2 surfaced.
+
+The candidate `kb/patterns/scope-gate-enforcement.md` entry was considered and **not written** — the scope-gate discipline here was exemplary, but it was an emergent property of three agents doing their jobs correctly rather than a reusable technique. No KB entry would add signal beyond what's already in this audit's Strengths section and the individual agent profiles.
+
+No postmortem entry — the three rulings were correct serial peeling of layered semantics, not an error. No mistake to learn from.
+
+---
+
+## 🎭 Role Performance
+
+**Gizmo:** Shining: Three rulings, each correct on its face, each making measurable progress (8→7→3→2→0). Addendum 2's regression-protection walkthrough was lead-designer-tier work — it preempted Boltz's inevitable "does this reopen S15.1?" question before it had to be asked. Kept the audit trail linear by appending addenda rather than revising the main ruling. Struggling: Ruling 1 did not anticipate the period-boundary case that Addendum 1 addressed; Addendum 1 did not anticipate the "no bd drop in window" case that Addendum 2 addressed. Each pass was honest, but in aggregate Gizmo could have asked earlier: "what are all the places this metric could disagree with runtime state?" Trend: → (solid, but the serial-peeling pattern is now visible twice — see also S11.2 juke).
+
+**Ett:** Shining: CONTINUE decision was correct and timely. Plan scoped SN-103 + SN-104 cleanly with an explicit scope gate on `combat_sim.gd`. Struggling: `TRIVIAL` sizing for a metric-semantics fix proved wrong (three iterations, two addenda). The charter's "restore CI green" phrasing conflated the moonwalk regression with pre-existing unrelated failures — narrow goal met, broad goal was never actually in scope but the phrasing read as if it were. Same class as the S15.1 finding (Ett named code paths that didn't exist on main); this one is phrasing, not fact, but both root in insufficient pre-commit precision. Trend: → (S15.1's dead-target miss was fact-level; S15.2's is framing-level — direction is better, but the generalized "verify before you commit" rule still hasn't fully landed).
+
+**Nutts:** Shining: Three clean iterations on a moving target, each correctly applying the latest ruling, each surfacing the residual honestly to Riv before taking unilateral scope decisions. Zero production-code drift across three passes — the scope gate held because Nutts let it hold. Iteration 2's "seeds 63 and 84 never observe a `bd` drop" diagnosis was the key unlock for Addendum 2; that's diagnostic work, not just coding. Struggling: Nothing significant. Trend: ↑ (continues the S15.1 improvement curve; escalation discipline is now a Nutts strength two sprints running).
+
+**Boltz:** Shining: Enforced the scope gate consistently across all three iterations without once needing to block a PR for it — the gate held because Boltz made clear up-front it would be enforced. Merge of PR #84 was clean; housekeeping merges of PR #81 and PR #82 in the same window kept the branch ledger tidy. Struggling: Shared-token 422 pattern from S15.1 continues to be a friction source for Boltz's review identity (flagged in recommendations, not Boltz's fault). Trend: → (steady; the per-agent GitHub App infra work would unlock an additional gear here).
+
+**Optic:** Shining: PASS verification on PR #85 was thorough and correctly distinguished S15.2's narrow scope (moonwalk test) from the broader CI state (pre-existing failures). Verify report cleanly called out that `test_sprint12_1.gd` / `test_sprint12_2.gd` / `test_sprint10.gd` are carried-forward tech debt, not S15.2 regressions. This is exactly the framing the audit needed to reach "partial pass" cleanly. Struggling: Nothing material. Trend: ↑ (two sprints running of gold-standard verify reports with explicit pre-existing-rot isolation).
+
+**Riv:** Shining: 🟡 surfaces between Nutts iterations routed the Gizmo addenda correctly without paging HCD. Handled the multi-PR merge window (#81, #82, #84) in the right order. Spawned Optic and this Specc audit on time. Struggling: The "restore CI green" charter ambiguity was not caught at plan-review time — Riv approved Ett's plan as written, and the broad-vs-narrow framing tension only surfaced at audit. Low-severity (it's framing, not execution), but Riv is the right stop for this class of catch. Trend: → (orchestration discipline is solid; plan-review precision is the next growth edge).
 
 ---
 
