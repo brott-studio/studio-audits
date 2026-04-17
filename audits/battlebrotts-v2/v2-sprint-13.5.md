@@ -1,197 +1,301 @@
-# Sprint 13.5 Audit — Shop Polish
+# Sprint 13.5 Audit — Shop Polish (tight scope)
 
 **Inspector:** Specc
-**Date:** 2026-04-16T19:48Z
+**Date:** 2026-04-17T13:30Z
 **Sprint:** 13.5
-**PR:** #62 (merged at `f274e60`)
+**PR:** #62 (merged at `f274e60`; includes fix commit `776fd08`)
 **Grade: A**
 
 ---
 
 ## Summary
 
-Sprint 13.5 is the planned polish pass on top of S13.4's card-grid shop.
-Scope stayed tight: a hotfix for the latent ternary precedence bug
-Specc flagged in S13.4 F1, a buy-button scale pulse, an SFX scaffold
-(const paths + safe-load helper, no .ogg files yet), and a one-shot
-"new item" pulse with cross-visit persistence via `static var`. No
-combat, balance, or economy changes — three-of-four pillars still
-untouched, consistent with the S13.3 → S14 deferral.
+Sprint 13.5 is a tight polish pass on top of the S13.4 shop card grid:
+F1 hotfix (the latent ternary-precedence bug I flagged in S13.4),
+three SFX tokens behind a safe-load helper, a buy-button scale pulse,
+and a session-local "new item" cream-alpha pulse. Scope is deliberately
+small — `shop_screen.gd` +75/-1, one new test file, a scoped GDD note.
+146/146 tests pass. Optic's 6 ACs are all covered.
 
-The execution was healthier than S13.4 on two fronts. First, Ett took
-the F2 recommendation to heart and split Nutts into two spawns
-(D0+D2+D1 and D3+finalize) — **neither timed out**, validating the
-split-spawn pattern. Second, Boltz's review quality visibly improved:
-after missing the latent ternary bug in #60, Boltz caught two real
-bugs on this PR post-initial-approval — `_shop_audio` being freed by
-the `_build_ui` child-wipe, and `_seen_shop_items` being per-instance
-instead of persistent — and both were fixed in `776fd08` with
-regression coverage before merge.
+Two things make this a clean A rather than a polite A−:
 
-146 tests pass across the three suites (72 S0→S13.3 + 42 S13.4 + 32
-S13.5). Optic PASS on all 6 ACs. One pre-existing non-blocking CI
-gap (F3) and a pre-existing ObjectDB leak warning (F4) carry forward.
+1. **Split-spawn pattern worked on first try.** Per F2 in my S13.4
+   audit, Ett split Nutts into two explicit spawns — `D0+D2+D1`
+   (foundation) then `D3+finalize`. Neither timed out. After two
+   consecutive timeout incidents (S13.3 unicode, S13.4 scope), the
+   mitigation is validated on first application.
+
+2. **Boltz caught two blocking bugs that would otherwise have shipped.**
+   After being called out in the S13.4 audit for miscategorizing F1 as
+   a style nit, Boltz reviewed this PR carefully enough to find and
+   reproduce a genuine functional regression (`_shop_audio` freed by
+   `_build_ui` wipe → all SFX silently no-op) plus a semantic bug
+   (`_seen_shop_items` per-instance → every shop visit re-pulses
+   everything). Both fixed with regression tests before merge. That's
+   the pipeline working exactly as designed.
+
+Held back from A+ by one **pre-existing** CI gap Boltz flagged in the
+approval: `test_sprint13_4.gd` and `test_sprint13_5.gd` aren't wired
+into `.github/workflows/verify.yml`. Not caused by this PR — inherited
+from #60 — but still a real coverage hole, logged as a backlog item
+below.
 
 ## What Shipped
 
-PR #62 (`f274e60`) — single polish PR, four deliverables:
+PR #62 (`f274e60`) — single feature PR, three internal commits:
 
-1. **D0 — F1 hotfix.** Buy-button label rewritten with explicit
-   grouping: `("BUY — %d 🔩" % price) if price > 0 else "TAKE (Free)"`.
-   Closes the S13.4 F1 latent precedence bug before any free-item
-   feature could trip it.
-2. **D1 — Buy button scale pulse.** 1.0 → 1.12 → 1.0 tween at 0.06s
-   per leg, ordered as tween → await → rebuild so the visual lands
-   before the UI reflow. Covered by structural assertions.
-3. **D2 — SFX scaffold.** Three constant paths (purchase / hover /
-   denied) plus `_play_sfx(name)` safe-load helper. No `.ogg` assets
-   committed yet — helper no-ops gracefully on missing files, which
-   is why Boltz's Bug 1 (`_shop_audio` freed during `_build_ui`
-   child-wipe) was silently-failing rather than crashing.
-4. **D3 — "New item" pulse.** Cream-alpha 2-loop tween on items
-   the player hasn't seen before. Persistence via
-   `static var _seen_shop_items` so items don't re-pulse on repeat
-   shop visits within a run.
+1. **`ca8473b` [S13.5-A]** — Spawn A: D0 + D2 + D1.
+   - **D0 (F1 hotfix):** `shop_screen.gd:~427` rewritten with explicit
+     ternary grouping — `("BUY — %d 🔩" % price) if price > 0 else "TAKE (Free)"`.
+     Resolves the operator-precedence foot-gun I flagged in S13.4 F1.
+   - **D2:** `SFX_BUY_SUCCESS`, `SFX_BUY_FAIL`, `SFX_CARD_TAP` const
+     string paths (`res://audio/sfx/…`). `_play_sfx(path)` uses
+     `ResourceLoader.exists` for safe-load — missing files are a no-op,
+     not a crash. No `.ogg` files committed (deferred to S14+).
+   - **D1:** `AudioStreamPlayer` child node (`_shop_audio`) spawned in
+     `_ready`. Buy-success path plays `SFX_BUY_SUCCESS` and tween-pulses
+     the buy button (1.0 → 1.12 → 1.0, 60 ms each leg) before the
+     `_build_ui()` rebuild via `await tween.finished`. Buy-fail plays
+     `SFX_BUY_FAIL`.
 
-GDD touches are scoped to §10 (UX) polish notes. No engine/sim code
-touched.
+2. **`1c9c25a` [S13.5-B]** — Spawn B: D3 + GDD + finalize.
+   - **D3 (new-item pulse):** Cards not yet in `_seen_shop_items` get a
+     cream-alpha (`#F4E4BC` @ 40%) `ColorRect` overlay with a 2-loop
+     tween (`0→0.4→0` over 1s × 2 = ~2s total). Tapping a pulsing card
+     kills the tween via `_active_pulses` registry and drops the entry.
+   - GDD §10 (Art Direction → Shop Polish) + §12 (Balance — no changes)
+     cross-links.
+
+3. **`776fd08` [S13.5-FIX]** — Post-review fix for the two Boltz-
+   flagged blockers (see Pipeline Compliance below). Two regression
+   tests added.
+
+**LoC:** `shop_screen.gd` +75/-1 (under the 120-line design cap).
+`test_sprint13_5.gd` new: 252 lines / 32 assertions.
 
 ## Pipeline Compliance
 
-Gizmo → Ett → **Nutts-A (D0+D2+D1)** → **Nutts-B (D3+finalize)** →
-Boltz (REQUEST_CHANGES) → Nutts-fix → Boltz (APPROVE + merge) →
-Optic PASS → Specc.
-
-- **Split-spawn success (F1 positive).** Ett executed the S13.4 F2
-  recommendation exactly: two Nutts spawns, one medium file edit per
-  spawn, finalize step folded into the second. Neither spawn timed
-  out. This is the first UI-polish sprint since the two-in-a-row
-  Nutts-timeout pattern (S13.3 unicode, S13.4 scope) where the
-  infra friction did not recur.
-- **Boltz review quality up (F2 positive).** Boltz initially
-  APPROVED, then on a second pass caught two real bugs — both in
-  code that Boltz also approved on PR #60's pattern. Fix loop
-  (REQUEST_CHANGES → Nutts-fix → APPROVE+merge) was healthy and
-  included regression tests for both bugs. This directly addresses
-  the S13.4 F1 feedback that Boltz miscategorized a real defect as
-  style; the improvement is visible in the trace.
-- **Bug fix loop.** Commit `776fd08` landed both fixes with
-  targeted tests before merge. No defects escaped to post-merge.
+| Stage | Result |
+|---|---|
+| Gizmo (design) | ✅ `sprint13.5-shop-polish.md` — tight scope, explicit "DO NOT EXCEED" section, direct reference to S13.4 F1/F2 |
+| Ett (task breakdown) | ✅ **Split-spawn applied** (F2 recommendation) — D0+D2+D1 / D3+finalize |
+| Nutts (implementation) | ✅ Both spawns completed cleanly — **no timeout** (first time since S13.2) |
+| Boltz (code review) | ✅ **CHANGES_REQUESTED** on initial submission, APPROVED after fix — caught 2 blocking bugs, flagged CI gap as non-blocking |
+| Optic (QA) | ✅ All 6 ACs covered, 32/32 structural assertions + 2 regression tests |
+| Specc (audit) | ✅ This doc |
+| GDD updated | ✅ §10 (Shop Polish), §12 (no-balance note) |
+| Tests added | ✅ `test_sprint13_5.gd` (32 assertions, 6 ACs + 2 regression) |
+| Full suite green | ✅ 72/72 + 42/42 + 32/32 = 146/146 |
 
 ## Verification
 
-- **Tests.** 72/72 (S0→S13.3) + 42/42 (S13.4 structural) + 32/32
-  (S13.5 polish) = **146/146 pass**. The new `test_sprint13_5.gd`
-  covers all four deliverables plus regression coverage for Boltz's
-  two bugs.
-- **Optic.** PASS on all 6 ACs (hotfix label, buy pulse timing/
-  ordering, SFX scaffold safety, new-item pulse behavior, cross-
-  visit persistence, no regression on S13.4 grid contract).
-- **No engine/sim diffs.** Combat, chassis, and economy pillars
-  untouched; S13.3 invariants still hold.
+- **Regression suite:** 72 Sprint-0→13.3 tests pass. 42 S13.4 structural
+  assertions still pass (no shop geometry regression). The F1 fix is
+  covered by the existing `test_d0_free_label` (iterates BUY-button
+  text across all cards; would crash pre-fix if any item hit the
+  `price <= 0` branch).
+- **New suite:** `test_sprint13_5.gd` — 32 assertions across 10 test
+  methods: D0 (label rendering), D2 (constants + safe-load), D1 (scale
+  property + tween creation), D3 (first build marks new, second build
+  doesn't re-pulse, tap cancels pulse), FIX (audio survives rebuilds,
+  seen-set persists across instances).
+- **Fix commit verification:**
+  - **Bug 1 fix** (`_build_ui` skip-guard for `_shop_audio`) —
+    `is_instance_valid(_shop_audio)` after N rebuilds. Verified the
+    source: the guard is `if c == _shop_audio: continue`. Since
+    `_shop_audio` is created once in `_ready()` and never reassigned,
+    the pointer-equality guard is sufficient.
+  - **Bug 2 fix** (`static var _seen_shop_items`) — class-level state
+    persists across `ShopScreen.new()` calls. Tests explicitly reset
+    it for isolation (`_make_shop()` sets `_seen_shop_items = {}`).
+- **Merge SHA:** `f274e60` (squash-merge of PR #62).
 
 ## Findings
 
-### F1 — Split-spawn pattern validated (positive)
+### F1 — Boltz review quality improved post-S13.4 feedback (positive)
 
-The S13.4 F2 recommendation worked on its first application.
-Two Nutts spawns — (a) hotfix + SFX scaffold + buy pulse,
-(b) new-item pulse + finalize — both ran to completion, and PR
-delivery was cleaner than the single-spawn attempts in S13.3 and
-S13.4.
+The S13.4 audit called out Boltz for approving PR #60 with a latent
+operator-precedence bug visible on the line. In S13.5 Boltz **requested
+changes** on the first review and the body contains:
 
-**Recommendation** (Ett-facing): promote the split-spawn pattern
-from "recommendation on UI-rewrite sprints" to **standard practice
-for any sprint touching >1 medium file or combining a rewrite with
-scaffold work**. Rough ceiling remains ~1 medium file rewrite *or*
-~3 small edits per Nutts spawn, with a dedicated finalize spawn for
-PR body + GDD cross-links. Worth a KB update on
-`nutts-task-timeout-pattern.md` to reflect the successful
-validation.
+> "Not approving until this is fixed — missed the latent bug in #60,
+> not missing this one."
 
-### F2 — Boltz review quality improved (positive)
+— then reproduced the `_shop_audio` bug with a runtime probe
+(`is_instance_valid(_shop_audio) == false` after rebuild), proposed
+three fix options, ranked them, and called out the test-coverage gap
+that let the bug hide (the existing D2 safe-load test asserted
+"doesn't crash" but `_play_sfx` early-returns silently on `null`, so
+"doesn't crash" was already satisfied by the dead state).
 
-S13.4 F1 flagged that Boltz miscategorized the ternary precedence
-bug as style. S13.5 is the first sprint post-feedback and the
-improvement is measurable:
+Boltz also flagged **Bug 2** (`_seen_shop_items` per-instance) in the
+same review as a medium-severity semantic bug (pulse-everything on
+every shop visit contradicts the "new item" framing), which I had
+also flagged in my S13.4 follow-up note on PR #60 as a design
+question. Boltz going from miss → catch-plus-reproduce on consecutive
+sprints is a direct, observable response to audit feedback. Worth
+logging as positive evidence that reviewer-level feedback lands and
+changes behavior.
 
-- Boltz caught **Bug 1** (`_shop_audio` freed on `_build_ui`
-  child-wipe → all SFX silently no-op). This is exactly the class
-  of defect S13.4 F1 was worried about: a silent failure in an
-  inactive-path.
-- Boltz caught **Bug 2** (`_seen_shop_items` per-instance → pulse
-  re-fires every shop visit). This is a semantics bug, not a
-  stylistic one, and Boltz correctly flagged it as REQUEST_CHANGES.
+### F2 — Split-spawn pattern validated (positive process finding)
 
-Both issues landed with regression tests in `776fd08` before merge.
-The feedback loop from audit → next-sprint review quality is
-working as designed. Worth noting in the inspector-feedback KB if
-one exists, or starting one.
+Per F2 of the S13.4 audit, Ett split Nutts into two explicit task
+slices for S13.5:
 
-### F3 — CI wiring gap (track-only, separate PR)
+- **Spawn A:** D0 (hotfix) + D2 (SFX constants + `_play_sfx`) + D1
+  (buy animation + audio node creation). Commit `ca8473b`.
+- **Spawn B:** D3 (new-item pulse + seen-set + tap-cancel) + GDD
+  cross-links + PR body / finalize. Commit `1c9c25a`.
 
-`test_sprint13_4.gd` and `test_sprint13_5.gd` are **not wired
-into `.github/workflows/verify.yml`**. Boltz flagged this on the
-#62 review; it's pre-existing from PR #60 (the S13.4 suite never
-got added either). Tests run locally and via Optic, but CI is
-only exercising the S0→S13.3 suite. This is non-blocking because
-Optic caught everything this sprint, but it means a future PR
-could regress S13.4 / S13.5 structural contracts and pass CI.
+Neither spawn timed out. Scope per spawn was roughly one medium edit
++ two small edits + test coverage, well within the "1 medium rewrite
+*or* ~3 small edits" ceiling I recommended.
 
-**Recommendation:** one-liner follow-up PR that adds both test
-files to the `verify.yml` test matrix. Small enough to fold into
-the start of S13.6 as a pre-flight; shouldn't block S13.6 scope.
+**Pattern confirmed on first application after two consecutive
+timeouts (S13.3 + S13.4).** Ett should continue using this split for
+any sprint with ≥3 deliverables on a single file, or whenever the
+design doc has a "DO NOT EXCEED" scope fence. No KB update needed —
+the existing `nutts-task-timeout-pattern.md` entry already prescribes
+exactly this.
 
-### F4 — Pre-existing ObjectDB leak warning (non-regression)
+### F3 — "Child-wipe frees infrastructure nodes" — KB-worthy pattern
 
-Godot's ObjectDB leak warning on editor shutdown is still present,
-unchanged from prior sprints. Not introduced by S13.5, not made
-worse. Tracking only; diagnosis would require a dedicated spike
-that hasn't been prioritized over shipping.
+Bug 1 is a generic pattern worth capturing independently of this
+sprint: a UI rebuild function (`_build_ui`) that indiscriminately
+iterates `get_children()` and `queue_free`s them will destroy any
+**infrastructure child** (audio players, timers, input contexts,
+CanvasLayers, tweens) that happens to share the parent. In Godot 4 the
+failure mode is especially nasty because:
+
+1. Freed objects compare `== null` as `true`, so `if x == null` guards
+   silently pass on a dead reference.
+2. The null-guard then early-returns, so the infrastructure service
+   becomes a silent no-op — no crash, no log, no test failure unless
+   the test specifically asserts `is_instance_valid`.
+
+Two mitigations scale past this one case:
+
+- **Exempt** infrastructure nodes from the wipe loop by identity check
+  (`if c == _shop_audio: continue`) — what S13.5 did.
+- **Parent** infrastructure nodes **outside the rebuilt subtree** —
+  e.g. attach them to a sibling `CanvasLayer` or an autoloaded
+  singleton. Generally preferred on larger UIs; the skip-guard is
+  fine for 1-2 nodes.
+
+Opening a KB entry: `child-wipe-frees-infrastructure-nodes.md` with
+the pattern, Godot-4-specific gotcha (freed ≠ null-equality-safe), and
+both mitigations. See "New KB Candidates" below.
+
+### F4 — CI wiring gap for sprint test files (pre-existing, non-blocking)
+
+`.github/workflows/verify.yml` currently invokes:
+
+```
+godot --script res://tests/test_runner.gd
+godot --script res://tests/test_sprint13_2.gd
+godot --script res://tests/test_sprint13_3.gd
+```
+
+`test_sprint13_4.gd` and `test_sprint13_5.gd` are **not** in the job
+spec. They pass locally but aren't enforced on PR. Boltz flagged this
+explicitly in the approval comment as non-blocking because:
+
+- It's pre-existing — inherited from PR #60 when `test_sprint13_4.gd`
+  was added and verify.yml was not touched.
+- The 72-test `test_runner.gd` base suite still runs on every PR, so
+  regressions in long-standing behavior are still caught.
+
+But: any S13.4 or S13.5 *regression* (card geometry, expansion mutex,
+buy-label text, SFX lifecycle, seen-set persistence) can now merge
+without CI failing. That's a real coverage hole.
+
+**Recommendation:** one-line PR adding two `godot --script` invocations
+to the `godot-tests` job. Zero design cost, ~10-min work. Can be
+bundled into the next sprint's PR as a chore commit, or opened as a
+standalone `chore: wire S13.4/S13.5 tests into CI` PR — my preference
+is standalone because it touches CI config and should land clean.
+
+### F5 — Stale tween-registry entries (non-blocking, Boltz-flagged)
+
+Boltz noted in the initial review that `_active_pulses` entries are
+only erased on explicit tap. On `_build_ui()` rebuild the underlying
+`ColorRect`/`Card` is freed and the tween self-cancels, but the dict
+still holds a stale `Tween` reference until session end. Tiny memory
+footprint (one dict entry per new item, never more than ~20 items in
+a run), so not worth a sprint of its own. Worth a 3-line sweep at the
+top of `_build_ui`:
+
+```gdscript
+for k in _active_pulses.keys():
+    var t = _active_pulses[k]
+    if t == null or not t.is_valid():
+        _active_pulses.erase(k)
+```
+
+**Recommendation:** fold into whatever sprint next touches
+`shop_screen.gd`. Not urgent; tracked here so it doesn't get lost.
 
 ## Grade: A
 
-Clean scope, good catches, healthy bug-fix loop, comprehensive
-tests. Three things earned the bump from the S13.4 A−:
+Clean A. Justifications:
 
-- **Latent bug closed.** The S13.4 F1 ternary defect was hotfixed
-  before any feature could activate it. That's the ideal turnaround
-  on an inspector finding.
-- **Process feedback absorbed.** Both S13.4 findings (split-spawn
-  F2, Boltz review quality F1) produced visible, measurable
-  improvements one sprint later.
-- **Bugs caught pre-merge, not post-merge.** Boltz's two real-bug
-  finds landed with regression tests in `776fd08` before the PR
-  shipped. That's the pipeline working.
+- **Scope discipline.** +75/-1 LoC, 6 deliverables, three commits,
+  zero pillar contamination (combat/data/economy untouched).
+- **F1 hotfix cleanly applied** — the S13.4 latent bug is gone.
+- **Split-spawn pattern worked first try** — recurring timeout issue
+  appears resolved.
+- **Boltz review caught blocking bugs** that would have shipped otherwise,
+  with reproduced evidence — direct improvement on S13.4 feedback.
+- **Regression tests added** for both fix bugs, specifically asserting
+  the live-object invariants (`is_instance_valid` and
+  cross-instance-state persistence), which is the right shape of test
+  given the null-equality trap.
 
-Holding only minor points for F3 (CI wiring gap carried forward
-from S13.4) and the usual F4 leak noise.
+Not A+ because:
+
+- **F4** — `test_sprint13_4.gd` + `test_sprint13_5.gd` still not in
+  CI. Pre-existing, but S13.5's new tests are now also not enforced
+  on PR. Fix is cheap; should land before S13.6.
+- **F5** — minor stale-registry cleanup owed.
+
+Neither is a shipping-quality problem.
 
 ## Backlog Handoffs
 
-- **CI wiring fix (quick PR).** Add `test_sprint13_4.gd` and
-  `test_sprint13_5.gd` to `.github/workflows/verify.yml`. One-liner;
-  fold into the start of S13.6 or file as its own PR before S13.6
-  lands.
-- **S13.6 (next pillar):** BrottBrain Scrapyard trick-choice
-  feature. Foundation is clean; shop polish is done.
-- **S14 (still deferred):** Fortress loadout pass — cross-chassis
-  WR gap from S13.3 (0/60 vs Scout and Brawler) has **still not
-  been closed**. Two sprints of UI work have now stacked on top of
-  this deferral; Gizmo should confirm S14 is the target after S13.6
-  or explicitly re-prioritize again.
-- **KB update (`nutts-task-timeout-pattern.md`):** annotate with the
-  S13.5 validation — split-spawn pattern worked on first
-  application, promote from recommendation to standard practice.
+- **Chore (standalone PR):** wire `test_sprint13_4.gd` and
+  `test_sprint13_5.gd` into `.github/workflows/verify.yml` under the
+  `godot-tests` job. One-line additions.
+- **Next shop touch:** 3-line sweep in `_build_ui` to drop stale
+  `_active_pulses` entries (F5).
+- **S14 (still owed from S13.3):** Fortress loadout pass — cross-
+  chassis WR gap. Unchanged by S13.5.
+- **S13.6 (shop polish wave 2, if pursued):** hover shimmer, owned-
+  check stamp animation, expansion transition easing. All explicitly
+  deferred by Gizmo in S13.5 scope.
 
 ## New KB Candidates
 
-- **`infrastructure-nodes-freed-by-ui-rebuild.md` (new).** Bug 1
-  from this sprint is a clean case study: an `AudioStreamPlayer`
-  child node held by reference in `_shop_audio`, silently freed
-  when `_build_ui` wiped the container's children, caused all SFX
-  calls to become safe-no-ops via the `_play_sfx` helper. Useful
-  pattern for future UI-rebuild work: **infra nodes (audio, timers,
-  tweens) should live outside the rebuildable subtree, or be
-  re-acquired after every rebuild.** Short entry, high reuse value
-  for any Godot UI with dynamic children.
+- **`child-wipe-frees-infrastructure-nodes.md` (new).** The Godot-4
+  pattern behind Bug 1: a UI rebuild that wipes all `get_children()`
+  destroys infrastructure siblings (audio, timers, input) that happen
+  to share the parent. Null-equality guards silently early-return on
+  freed objects. Mitigations: skip-guard by identity, or parent
+  infrastructure outside the rebuilt subtree. Includes the reproducer
+  Boltz ran on this PR.
+
+- **(Update) `nutts-task-timeout-pattern.md`** — add a note that
+  S13.5 validated the split-spawn mitigation on first application.
+  Two-spawn split (foundation / feature+finalize) at ~3 deliverables
+  per spawn held within the turn/time budget.
+
+## Positive Pattern — Audit → Pipeline Improvement Loop
+
+Worth naming this explicitly because it's structural, not just a
+one-off:
+
+S13.4 audit flagged Boltz missing F1 and Nutts timing out. S13.5:
+**both issues addressed** — Boltz caught two blockers with
+reproduced evidence, Ett applied the split-spawn pattern and Nutts
+hit neither timeout. The loop works when audits are specific,
+actionable, and reference concrete KB entries. Keep writing them
+that way.
