@@ -1,4 +1,4 @@
-# Sprint 15 — Post-Merge Audit
+# Sprint 15.1 — Post-Merge Audit
 
 **Auditor:** Specc
 **Date:** 2026-04-17T16:44Z
@@ -10,7 +10,7 @@
 
 ## 1. Headline
 
-**Grade: B.** Sprint 15 is a partial-pass sprint that the pipeline handled cleanly. Acceptance bar (`violations == 0`) was not met — `main` still fails one CI test (`test_away_juke_cap_across_seeds` 7/100) — but the residual is a diagnosed test-metric artifact, not a live movement bug, and the two real moonwalk sources Boltz identified are now clamped. More importantly, the pipeline self-corrected twice without HCD intervention: once when Nutts found Ett's target branch didn't exist and escalated instead of fabricating a fix, and again when the scope question (narrow vs expand) routed Nutts→Boltz→Riv and resolved inside the sprint's original spirit. The sprint leaves a clean hand-off for S15.2 (or S16): a Gizmo test-spec ruling on pre-tick vs post-tick `to_target` sampling, plus tech-debt on three silently-failing test files.
+**Grade: B.** Sprint 15.1 is a partial-pass sprint that the pipeline handled cleanly. Acceptance bar (`violations == 0`) was not met — `main` still fails one CI test (`test_away_juke_cap_across_seeds` 7/100) — but the residual is a diagnosed test-metric artifact, not a live movement bug, and the two real moonwalk sources Boltz identified are now clamped. More importantly, the pipeline self-corrected twice without HCD intervention: once when Nutts found Ett's target branch didn't exist and escalated instead of fabricating a fix, and again when the scope question (narrow vs expand) routed Nutts→Boltz→Riv and resolved inside the sprint's original spirit. The sprint leaves a clean hand-off for S15.2 (or S16): a Gizmo test-spec ruling on pre-tick vs post-tick `to_target` sampling, plus tech-debt on three silently-failing test files.
 
 ---
 
@@ -32,7 +32,7 @@
 
 ```
 Gizmo  → no drift, no brief required (CI-health sprint)
-Ett    → CONTINUE, S15, narrow clamp plan (targets dead juke branch)
+Ett    → CONTINUE, S15.1, narrow clamp plan (targets dead juke branch)
 Nutts  → 1st attempt: diagnosis shows Ett's target doesn't exist.
          Opens PR #80 with ONLY sprint plan + "scope question" escalation.
 Boltz  → REQUEST_CHANGES review, confirms diagnosis, names two real
@@ -75,7 +75,7 @@ Ett's guardrail was "narrow per-path clamp, no refactor." Nutts' diagnosis pushe
 
 - **Sprint plan (`sprints/sprint-15.md`):** Concise, correctly scoped at plan time. The fact that its target turned out to be dead on main is an Ett miss — see §4.2 — but the plan's *shape* was right.
 - **PR #80 body:** Exceptional. Clean narrative of problem → direction → landed commits → honest bar-miss → routed follow-ups. This is the template a PR body should follow when a sprint lands partial.
-- **KB update (`docs/kb/juke-bypass-movement-caps.md`):** Appended a dated S15 section that explicitly says "don't re-chase the juke branch — it's gone." Future-proofs against the exact mistake this sprint started with.
+- **KB update (`docs/kb/juke-bypass-movement-caps.md`):** Appended a dated S15.1 section that explicitly says "don't re-chase the juke branch — it's gone." Future-proofs against the exact mistake this sprint started with.
 - **Debug harness (`godot/tests/harness/debug_moonwalk.gd`):** Turnkey per-seed repro. `scan` mode lists violators; `seed=N` mode dumps per-tick trace. Optic used it directly to produce the seven failing-seed table in the verify report. This is durable infrastructure, not throwaway scaffolding.
 - **Verify report (`docs/verification/sprint15-report.md`):** Thorough. Reproduces CI command sequence, aggregates per-file results, cross-checks failing-test list against pre-sprint baseline (`7567fb5^`) to distinguish regressions from pre-existing rot. The pre-sprint baseline check is the gold-standard move.
 
@@ -149,7 +149,7 @@ Postmortem-tier entry considered and **not written**: Nutts' wrong-target diagno
 
 ## 8. Gate status
 
-**Sprint 15 audit: COMMITTED. Gate cleared for S15.2 (pending Gizmo test-spec ruling) or S16.**
+**Sprint 15.1 audit: COMMITTED. Gate cleared for S15.2 (pending Gizmo test-spec ruling) or S16.**
 
 Residual work is well-hand-off-ed:
 - Gizmo: rule on pre-tick vs post-tick `to_target` in `test_away_juke_cap_across_seeds`.
