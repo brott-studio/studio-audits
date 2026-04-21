@@ -27,7 +27,7 @@
 
 | # | Title | State | Action needed | Decides |
 |---|-------|-------|---------------|---------|
-| **190** | [S17.2-004] Dev-only velocity debug overlay | open, auto-merge armed, `mergeable_state=blocked` | Required approving review (no reviewer assigned; studio-lead-dev[bot] has auto-approved prior pipeline PRs at 08:19 UTC in sweeps). If not auto-approved by next sweep, HCD can merge manually — it's dev-only, OFF by default, very low risk. | studio-lead-dev sweep / HCD |
+| **190** | [S17.2-004] Dev-only velocity debug overlay | open, auto-merge armed, `mergeable_state=blocked`, **0 reviews after 20 min poll (09:13 → 09:29 UTC)** | Required approving review. studio-lead-dev[bot] sweep did NOT fire in the handoff window (prior sweep was 08:19 UTC). HCD can manually approve + merge — dev-only, OFF by default, very low risk. | HCD (or next studio-lead-dev sweep if it runs on a schedule) |
 | **189** | Riv's Decision: defer S17.2-003 to S17.3 | open | **HCD disposition**: accept defer vs scope-down vs accept current impl | HCD |
 | **188** | [S17.2-003] Scout feel code PR | open | Tied to #189; holds pending disposition | HCD |
 | 177 | (non-S17.2 chore/docket) | open | Leave for HCD triage | HCD |
@@ -46,7 +46,7 @@
    - **A. Accept defer to S17.3** (Riv's recommendation): escalate to a fresh sub-sprint with spec-level rework since the issue is structural, not tuning.
    - **B. Scope down in-place**: accept AC-T3 relaxation, re-tune with current architecture, close S17.2-003 as-is.
    - **C. Accept current impl**: declare current Scout feel "good enough" and ship.
-2. **PR #190 merge disposition.** If the studio-lead-dev sweep hasn't auto-approved by the time HCD reviews, decide: manual approve + merge, or wait. Low-risk (dev-flag-gated, OFF by default).
+2. **PR #190 merge disposition.** Sweep did NOT fire during the handoff window. HCD to decide: manual approve + merge now, or wait for next sweep. Low-risk (dev-flag-gated, OFF by default). All required status checks are GREEN — only review gate is missing.
 3. **Triage PRs #177, #173, #152.** Non-S17.2 chores/dockets that predate this shift.
 
 ---
@@ -102,6 +102,8 @@ studio-framework #20 landed the Phase 3e sub-sprint audit-gate enforcement (fix(
 - ~08:50 v2 #189 — Riv decision: defer S17.2-003 to S17.3 (awaits HCD)
 - ~09:00 v2 #190 — S17.2-004 velocity debug overlay (auto-merge armed, awaiting review sweep)
 - 09:12 Handoff run begins (Riv final leg)
+- 09:13 → 09:29 v2 #190 polled 12× @ 75s — no studio-lead-dev sweep fired; merge window exhausted per 20-min guardrail
+- ~09:30 studio-audits #12 — handoff PR opened for HCD review
 
 ---
 
