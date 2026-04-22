@@ -2,291 +2,289 @@
 
 **Project:** battlebrotts-v2
 **Sprint:** 18.3 (sub-sprint 3 of 5, S18 "Framework Hardening" arc)
-**Date:** 2026-04-22T13:40Z
-**Auditor:** The Bott (directly, after Specc-retry spawn exceeded 30m runtime limit thrashing on large-content file-write — see §12)
+**Date:** 2026-04-22T03:10Z
+**Auditor:** Specc
 **PM:** Ett
-**Grade:** **B+**
-**Arc status:** S18 arc progressing — S18.3 delivered the BOOTSTRAP validation rubric + cold-start dry-run + 13 doc patches. Core deliverables landed and the Audit Gate got its first real production exercise (passed). The close-out loop broke (audit file did not land on main for ~11h; required Bott-initiated retry); grade reflects execution quality minus process reliability.
+**Orchestrator:** Riv
+**Grade:** **A−**
+**Arc status:** S18 arc progressing — S18.3 delivered cold-start validation of `BOOTSTRAP_NEW_PROJECT.md` end-to-end: rubric authored, dry-run executed, 13 findings patched same-sprint, sandbox torn down. One mid-sprint anomaly (external closure of #229) complicates the S18.4 carry-forward and is flagged P0 for Ett's next planning pass.
 
 ---
 
 ## 1. Headline
 
-S18.3 ran the first cold-start validation of `BOOTSTRAP_NEW_PROJECT.md` against a fresh sandbox repo (`brott-studio/bootstrap-sandbox`), scored 19 rubric assertions via the `BOOTSTRAP_ACCEPTANCE.md` rubric (15 PASS / 4 FAIL), patched back 13 findings in the same sprint, filed 2 low-prio nits as backlog issues, and tore down the sandbox cleanly. The new `Audit Gate` check (shipped in S18.2) got its first non-throwaway production run against the S18.3 plan PR itself and PASSED — mechanism validated end-to-end.
+S18.3 closed the third P0 brick of the Framework Hardening arc. The sub-sprint validated `BOOTSTRAP_NEW_PROJECT.md` against a throwaway sandbox repo using a fresh `lightContext` Nutts subagent as the adversarial cold-start agent. Deliverables: `BOOTSTRAP_ACCEPTANCE.md` (19 verifiable assertions across 5 steps; ≥2/step), dry-run findings (15/19 PASS, 4 FAIL — all explained and classified), patch-back PR resolving 13 doc findings in-sprint, sandbox created and torn down with Option A carve-out annotations, and one side-effect PR swept. The `Audit Gate` check had its first real production exercise this sprint (plan PR #232 on `battlebrotts-v2`) and PASSED, plus a second independent exercise via the first-sprint-of-arc rule on the sandbox dry-run — also PASSED. S18.2's delivery is now validated by real traffic.
 
-**Grade rationale:** B+, not A−.
-- Core work is good: rubric is operational (19 assertions, ≥2 per step), dry-run surfaced actionable findings, same-sprint patch-back closed all 13 doc-patchable findings with verified diff hunks, side-effects swept (bootstrap-sandbox archived + deleted, studio-audits revert for the accidental seed), backlog hygiene clean (#29 and #30 filed, #229 accidentally auto-closed and reopened).
-- Two process failures prevent A− or A:
-  - **(a) Merge-commit hygiene error.** The S18.3 plan merge commit body referenced `#229` in passing ("Optic Verified (#229 paper-tiger, S18.4 scope)"), which GitHub's merge-commit parser interpreted as a close directive and auto-closed the P0 S18.4 ordering-constraint issue. The Bott caught this ~1h later via Specc's [S18.3-006] flag, reopened #229, and added an explanatory comment. Not catastrophic (reversible in minutes, carry-forward semantics preserved), but a real hygiene miss.
-  - **(b) Close-out loop broke.** Riv's Phase 3 subtree finished cleanly at 02:46 UTC with the Specc-audit spawn as its last action. Riv terminated after yielding; the Specc-audit grandchild either silently failed or its completion event never propagated back to The Bott. The audit file did not land on `studio-audits:main`. The Bott did not notice for ~9h (from 02:46 to 13:00 UTC) until HCD pinged "status? silent all night." First retry spawn (13:04 UTC) timed out at 29m58s thrashing on a large-content file-write tooling issue and never committed anything. The Bott then wrote this audit directly to break the loop. Process fault. Mitigation (the active-arc reconciler cron) was built the same day; see §7.
-- Pipeline scope-gate held perfectly (no `godot/**` or `docs/gdd.md` diffs), and every finding from the cold-start dry-run is accounted for. The grade is honest about process reliability, not punishment for the execution quality which was solid.
+**Grade rationale:** A−, not A.
+- Execution was clean. The dry-run surfaced real gaps (not confirmation-bias noise), the patch-back landed 13 of them the same sprint per the Gizmo "not-deferred" rule, and both Option A admin-PAT carve-outs (sandbox create + sandbox delete) were annotated with reason and 24h waiver rationale.
+- Two soft spots prevent A: (a) the cold-start subagent opened a side-effect PR (`studio-framework#27`) against the live `REPO_MAP.md` that then had to be closed unmerged, plus an accidental seed of `audits/bootstrap-sandbox/README.md` onto `studio-audits:main` that had to be reverted (commit `a6f56a6`) — both recoverable, both documented, but both are pipeline-hygiene leaks the orchestration didn't prevent; (b) 4 of 19 rubric assertions still FAIL — three reflect real environmental/platform constraints the doc now names explicitly (Free-tier branch protection, Apps-install-from-UI requirement, post-merge-on-main delivery path for `REPO_MAP`), but one (2.2 — App install on sandbox) never actually completed in the sandbox, meaning the dry-run's coverage of steps 3–5 implicitly assumed the install would have worked in a real run. That gap is now documented in `BOOTSTRAP_NEW_PROJECT.md` per [S18.3-004], but it is still a gap the dry-run had to *work around* rather than *resolve*.
 
 ---
 
-## 2. Scope-streak ledger
+## 2. Scope recap
 
-| Sub-sprint | `godot/data/**` drift | `docs/gdd.md` drift | `godot/arena/**` drift | Final-merge status |
-|---|---|---|---|---|
-| S17.1 | 0 | 0 | 0 | clean |
-| S17.2 | 0 | 0 | 0 | clean |
-| S17.3 | 0 | 0 (at merge) | 0 | clean |
-| S17.4 | 0 | 0 | 0 | clean |
-| S18.1 | 0 | 0 | 0 | clean |
-| S18.2 | 0 | 0 | 0 | clean |
-| **S18.3** | **0** | **0** | **0** | **clean** |
+Per the S18.3 plan PR (`battlebrotts-v2#232`) and Gizmo's Option C (hybrid) mechanism choice:
 
-Streak: **10 consecutive sub-sprints scope-gate clean.** S18.3 was a framework-docs + throwaway-sandbox sprint; all diff landed on `studio-framework` (docs), `studio-audits` (revert only), and the ephemeral `bootstrap-sandbox` (now deleted). Zero diffs on `battlebrotts-v2:main` other than the sprint plan file itself.
+- **Workstream A — Rubric.** Author `studio-framework/BOOTSTRAP_ACCEPTANCE.md` with ≥2 verifiable assertions per bootstrap step (≥10 total). Each assertion a literal `gh api` / shell check with an expected result and a pointer back to the source doc on failure.
+- **Workstream B — Dry-run.** A fresh Nutts subagent with `lightContext=true` (no arc brief, no prior-sprint context) executes `BOOTSTRAP_NEW_PROJECT.md` end-to-end against a throwaway `brott-studio/bootstrap-sandbox` repo. At each step, self-score against the rubric and log every ambiguity/gap to `/home/openclaw/.openclaw/workspace/tmp-s18.3-findings.md`.
+- **Workstream C — Patch-back.** Every finding patched into source docs the same sprint, or filed as a backlog issue if infra-gap (Gizmo "file-don't-fix" rule). Sandbox torn down after patch-back merge.
+- **Workstream D — Backlog hygiene.** Any out-of-scope finding filed as a labeled backlog issue on the correct repo.
+
+Hard out-of-scope (Gizmo's 4 guardrails): no Optic automation (#229), no admin-bypass closure (#224/#225), no simplification passes, no diffs under `godot/**` or `docs/gdd.md`.
 
 ---
 
-## 3. Sprint goal and what shipped
+## 3. Work landed
 
-**Goal.** First cold-start validation of `BOOTSTRAP_NEW_PROJECT.md` (shipped in S18.2). Produce a verifiable rubric, exercise it end-to-end on a fresh sandbox, patch surfaced gaps in the same sprint, file out-of-scope items for later.
-
-**What shipped.**
-- **[S18.3-001]** `studio-framework#26` — `BOOTSTRAP_ACCEPTANCE.md` rubric, 19 verifiable assertions (≥2 per bootstrap step). Merge SHA `b4779e4ae7014e64ef31fa25909fb801867d22f2`.
-- **[S18.3-002]** `brott-studio/bootstrap-sandbox` created (empty-main-only, commit `b6bfd73`). Private repo, skeleton seeded with `.gitkeep` stubs.
-- **[S18.3-003]** Cold-start dry-run executed against sandbox. `tmp-s18.3-findings.md` produced; 15/19 assertions PASS, 4 FAIL (all traced to concrete doc gaps).
-- **[S18.3-004]** `studio-framework#28` — patch-back. 13 doc-patchable findings resolved in one PR. Scope-gate clean (`BOOTSTRAP_NEW_PROJECT.md` +231 / `BOOTSTRAP_ACCEPTANCE.md` +32, no profiles / workflows / structural framework docs touched). Merge SHA `6971f4c16c454efc0a90dca192dad07c16e542ea`. `studio-framework#27` (side-effect REPO_MAP PR) closed unmerged.
-- **[S18.3-005]** Sandbox torn down. Archive → delete → HTTP 404 verify, one pass. 24h archive-grace waived by Riv (documented; see §6).
-- **[S18.3-006]** Backlog hygiene. `studio-framework#29` (§2c cross-link nit) and `studio-framework#30` (§3.4 duplication nit, S18.5-tagged) filed. `battlebrotts-v2#229` verification attempted; see Finding 2 (accidental auto-close, reopened).
-- **studio-audits**: revert commit `a6f56a6` removed the accidental `audits/bootstrap-sandbox/README.md` seed that landed on `studio-audits:main` during [S18.3-003]. Close-out audit (this file) lands on `main`.
-
----
-
-## 4. PR list
-
-| PR | Title | Status | Notes |
+| Artifact | Repo | State | SHA |
 |---|---|---|---|
-| `battlebrotts-v2#232` | `[S18.3] plan: cold-start validation for BOOTSTRAP_NEW_PROJECT.md` | **merged** squash, admin-PAT bypass | Merge SHA `6794d2340b`. **Audit Gate PASSED — first non-throwaway production run** (looked up `v2-sprint-18.2.md`, found it, passed). Also accidentally auto-closed `#229` via bare `#229` reference in merge-commit body (reopened at 04:10 UTC). Admin-PAT bypass per S18.2 Option A carve-out (Optic Verified paper-tiger, S18.4 scope). |
-| `studio-framework#26` | `[S18.3-001] Author BOOTSTRAP_ACCEPTANCE.md (cold-start rubric)` | **merged** | Merge SHA `b4779e4ae7014e64ef31fa25909fb801867d22f2`. 19 assertions, ≥2 per bootstrap step. |
-| `studio-framework#27` | `repo-map: add bootstrap-sandbox (S18.3-003 cold-start dry-run)` | closed unmerged (intended) | Side-effect PR opened by Nutts during cold-start; swept in [S18.3-004]. |
-| `studio-framework#28` | `[S18.3-004] Patch-back from cold-start dry-run (BOOTSTRAP_NEW_PROJECT)` | **merged** | Merge SHA `6971f4c16c454efc0a90dca192dad07c16e542ea`. 13 findings resolved, scope-gate clean. Cross-actor APPROVE+merge by Boltz App. |
-| `studio-framework#29` | `BOOTSTRAP_NEW_PROJECT.md §2c cross-link back to §2b for installation-ID rediscovery` | open, backlog | Filed by Specc [S18.3-006]. `backlog`, `area:framework`, `prio:low`. |
-| `studio-framework#30` | `BOOTSTRAP_NEW_PROJECT.md §3.4 duplicates §3.1 parameterisation guidance — consolidation candidate` | open, backlog | Filed by Specc [S18.3-006]. S18.5-tagged. |
+| `studio-framework#26` — `[S18.3-001] Author BOOTSTRAP_ACCEPTANCE.md (cold-start rubric)` | studio-framework | **merged** | `b4779e4ae7014e64ef31fa25909fb801867d22f2` |
+| `studio-framework#28` — `[S18.3-004] Patch-back from cold-start dry-run (BOOTSTRAP_NEW_PROJECT + ACCEPTANCE)` | studio-framework | **merged** | `6971f4c16c454efc0a90dca192dad07c16e542ea` |
+| `studio-framework#27` — `repo-map: add bootstrap-sandbox (S18.3-003 cold-start dry-run)` | studio-framework | closed unmerged (side-effect sweep) | head `f8cbc1aa9ea7033657905674eac7b6ba0c4303ff` |
+| `studio-audits` revert — `Revert "audits: seed bootstrap-sandbox/README.md (S18.3-003 cold-start dry-run)"` | studio-audits | **landed on main** | `a6f56a6c1498…` |
+| `brott-studio/bootstrap-sandbox` — created for dry-run, torn down after patch-back merge | bootstrap-sandbox | **deleted** (`GET /repos/brott-studio/bootstrap-sandbox` → **404** at audit time) | create commit `b6bfd73` |
+| `battlebrotts-v2#232` — S18.3 plan PR (planning-only; first real `Audit Gate` exercise) | battlebrotts-v2 | merged per plan-PR acceptance | — (no game-code diff) |
 
-No game-code PRs. No `studio-audits` PRs (revert + this audit are direct-to-main commits per studio-audits conventions).
+**Diff on `battlebrotts-v2:main` this sprint:** zero under `godot/**`, zero under `docs/gdd.md`, plan PR (`sprints/sprint-18.3.md`) only. Scope-streak clean.
 
 ---
 
-## 5. Validation evidence
+## 4. Cold-start dry-run results
 
-### 5.1 Cold-start dry-run — rubric scorecard (15 PASS / 4 FAIL)
+Dry-run executed by fresh Nutts subagent (`lightContext=true`, no arc-brief injection). Self-score against `BOOTSTRAP_ACCEPTANCE.md`: **15 PASS / 4 FAIL / 0 N/A out of 19 assertions.** Per-step table:
 
-| Step | Assertion | Result | Note |
+| Step | Assertion | Result | One-line reason |
 |---|---|---|---|
-| 1 — Create project repo | 1.1 repo exists | PASS | `gh api repos/brott-studio/bootstrap-sandbox --jq .full_name` → `brott-studio/bootstrap-sandbox` |
-| | 1.2 default branch is `main` | PASS | |
-| | 1.3 required dirs present | PASS | `sprints/`, `arcs/`, `docs/gdd.md`, `.github/workflows/` — seeded with `.gitkeep` stubs since Git can't commit empty dirs |
-| | 1.4 `README.md`, `.gitignore` present | PASS | |
-| 2 — Provision per-agent Apps | 2.1 `.pem` files mode 600 | PASS | specc / boltz / optic all present at `~/.config/gh/brott-studio-<agent>-app.pem` |
-| | 2.2 Apps installed on project repo | **FAIL** | None of specc/boltz/optic installed on `bootstrap-sandbox`. Fine-grained PAT cannot add repos to org-level App installs (requires UI click or `admin:org` classic PAT). Doc gap patched in [S18.3-004]. |
-| | 2.3 Specc `contents=write` on studio-audits | PASS | |
-| | 2.4 Boltz ≥ `contents=read` on studio-audits | PASS | Actually `write` (platform constraint — see S18.2 audit Finding 3). |
-| 3 — Wire secrets + CI gates | 3.1 `audit-gate.yml` + script present | PASS | |
-| | 3.2 no `battlebrotts-v2` hardcoded references | PASS | Grep `^[^#]*battlebrotts-v2` on script exits rc=1. Patched to also search docstring lines (not just constants) in [S18.3-004]. |
-| | 3.3 `BOLTZ_APP_ID` + `BOLTZ_APP_PRIVATE_KEY` secrets set | PASS | |
-| | 3.4 Audit Gate required on `main` | **FAIL** | `required_status_checks` API returned 403 "Upgrade to GitHub Pro or make this repository public." Private repos on Free orgs can't use branch protection. Doc gap patched with explicit Pro-plan prerequisite note in [S18.3-004]. |
-| | 3.5 required PR reviews set | **FAIL** | Same 403 as 3.4 — same root cause, same patch. |
-| 4 — Point framework at new project | 4.1 `REPO_MAP.md` updated | **FAIL** | Update landed as studio-framework#27 (branch), never merged (main is branch-protected, cold-start agent couldn't merge without review). Doc gap patched with "expect FAIL during open PR" clause in [S18.3-004]. |
-| | 4.2 `studio-audits/audits/<project>/README.md` seed | PASS | Pushed directly; studio-audits main allows direct push. Stub body patched into doc. |
-| | 4.3 no `battlebrotts-v2` in copied workflows | PASS | |
-| 5 — First-arc kickoff | 5.1 `arcs/arc-1.md` exists | PASS | Placeholder stub per task instructions. |
-| | 5.2 audit_gate.py has first-sprint rule | PASS | Canonical FAIL string `first sprint of an arc must introduce arcs/arc-` present, 1 grep match. |
-| | 5.3 sprint-1.1 PR opened | PASS | `bootstrap-sandbox#1`, closed unmerged per dry-run protocol. |
+| 1 — Create project repo | 1.1 repo full_name | PASS | `repos/brott-studio/bootstrap-sandbox` returned 200 with correct `full_name`. |
+| 1 | 1.2 default_branch=main | PASS | Confirmed via API. |
+| 1 | 1.3 required dirs exist | PASS | `sprints/`, `arcs/`, `docs/gdd.md`, `.github/workflows/` seeded with `.gitkeep` stubs (Git cannot commit empty dirs; workaround now documented in the rubric). |
+| 1 | 1.4 README + .gitignore | PASS | Both present as `type=file` on `main`. |
+| 2 — Provision per-agent Apps | 2.1 .pem files on disk with mode 600 | PASS | Specc / Boltz / Optic keys all present, `0600`. |
+| 2 | 2.2 Apps installed on `<project>` | **FAIL** | None of the 3 Apps are installed on `bootstrap-sandbox`. All 3 installs are org-wide `repository_selection=selected` and the sandbox is not in the selected list. Shared PAT `brotatotes` lacks `admin:org` / `user/installations` write scope → `403 Resource not accessible by personal access token`. Doc gap now named explicitly in `BOOTSTRAP_NEW_PROJECT.md` §2 per [S18.3-004]. |
+| 2 | 2.3 Specc has `contents:write` on `studio-audits` | PASS | Installation permissions reflect it. |
+| 2 | 2.4 Boltz has `contents:write` on `studio-audits` | PASS | Installation permissions reflect it. |
+| 3 — Wire secrets + CI gates | 3.1 `audit-gate.yml` + `scripts/audit_gate.py` exist | PASS | Both present on `main` of sandbox. |
+| 3 | 3.2 no `battlebrotts-v2` strings outside comments in `audit_gate.py` | PASS | `grep -n '^[^#]*battlebrotts-v2'` exits rc=1 after `PROJECT` constant + 2 docstring lines were rewritten (docstring lines are whitespace-prefixed, so the grep catches them — rubric-patch landed in [S18.3-004] to say "search whole file, not just constants"). |
+| 3 | 3.3 `BOLTZ_APP_ID` + `BOLTZ_APP_PRIVATE_KEY` secrets set | PASS | Both present on repo secrets via libsodium sealed-box `PUT`. |
+| 3 | 3.4 `Audit Gate` set as required status check | **FAIL** | `GET /repos/.../branches/main/protection/required_status_checks` → `403 "Upgrade to GitHub Pro or make this repository public to enable this feature."` Free-tier + private repo platform limit. Not an agent fault; doc now states the plan prerequisite explicitly per [S18.3-004]. |
+| 3 | 3.5 required PR reviews set | **FAIL** | Same 403 as 3.4 (same platform limit). Repo rulesets also Pro-gated for private repos — verified via `POST /repos/.../rulesets`. Doc patched. |
+| 4 — Point framework at new project | 4.1 `REPO_MAP.md` lists `<project>` | **FAIL** | The update landed as `studio-framework#27` (open, then closed unmerged as a deliberate side-effect sweep — the sandbox is throwaway; merging a throwaway target into the live `REPO_MAP` was never appropriate). Rubric is post-merge-on-main, so it reads FAIL. Doc now states: "this step opens a PR; the assertion FAILs until it merges; for throwaway sandboxes, skip this step and don't open the PR." |
+| 4 | 4.2 `studio-audits/audits/<project>/README.md` exists | PASS (during dry-run); **reverted post-teardown** (commit `a6f56a6`) | Pushed directly to `studio-audits:main` (no required reviews, only `enforce_admins: true`). Reverted after sandbox teardown to keep `studio-audits:main` clean. |
+| 4 | 4.3 no `battlebrotts-v2` strings in workflow files | PASS | Only `audit-gate.yml` present; grep returned no hits. |
+| 5 — First-arc kickoff | 5.1 `arcs/arc-1.md` exists | PASS | Placeholder stub (not a real brief) — task-sanctioned. Marked `⚠️ Placeholder — not a real arc brief` inline. |
+| 5 | 5.2 `audit_gate.py` contains first-sprint-of-arc rule string | PASS | Canonical string `first sprint of an arc must introduce arcs/arc-` present at line 308, unchanged from `battlebrotts-v2` upstream. |
+| 5 | 5.3 one PR with title matching `sprint-1.1` | PASS | `bootstrap-sandbox#1` exists, state `closed`, unmerged — per plan. |
 
-### 5.2 Audit Gate first production run
+**Audit Gate run on the sandbox PR:** `https://github.com/brott-studio/bootstrap-sandbox/actions/runs/24757500294` — `✅ Audit Gate: PASS. First sprint of arc S1 (sprints/sprint-1.1.md) — arcs/arc-1.md present in PR tree. Prior-audit lookup SKIPPED per first-sprint rule.` The gate executed the first-sprint-of-arc carve-out as documented. No paper-tiger behavior on this mechanism.
 
-**S18.3 plan PR (`battlebrotts-v2#232`).** Head SHA `31bffa1290`. Check-runs:
-```
-Detect changed paths   → success
-Godot Unit Tests       → success
-Playwright Smoke Tests → success
-Audit Gate             → success  ← first real exercise
-auto-merge             → success
-```
-Matches spec: `M == 3 (>=2)` → `audit_gate.py` performs a GET of `audits/battlebrotts-v2/v2-sprint-18.2.md` on `studio-audits:main`, succeeds, returns PASS. End-to-end validated: the S18.2 mechanism gated a real planning PR for the next sub-sprint in the same arc.
+**4 FAIL classification:**
+- 2.2 (App install) → platform/process gap: org-level install writes need `admin:org` PAT or UI click; doc now states this.
+- 3.4, 3.5 (branch protection) → platform tier gap: Free-tier private repo; doc now states the plan prerequisite.
+- 4.1 (REPO_MAP) → delivery-path gap: doc now distinguishes throwaway-target (skip) from real-project (PR-merge-required).
 
-**Sandbox first-sprint-of-arc case.** `bootstrap-sandbox#1`, run `24757500294`. Gate fired, executed first-sprint-of-arc short-circuit rule, emitted:
-```
-## ✅ Audit Gate: PASS
-First sprint of arc S1 — arcs/arc-1.md present in PR tree. Prior-audit lookup SKIPPED per first-sprint rule.
-```
-
-No paper-tiger behaviour on Audit Gate itself.
-
-### 5.3 Sandbox teardown
-
-- Archive: `PATCH /repos/brott-studio/bootstrap-sandbox` → 200, confirmed `archived=true`.
-- Delete: `DELETE /repos/brott-studio/bootstrap-sandbox` → 204.
-- Final: `GET /repos/brott-studio/bootstrap-sandbox` → 404. ✅
-
-24h archive-grace-window waived by Riv at [S18.3-005] with verbatim rationale: *"sandbox is a private throwaway with zero stakeholders; [S18.3-004] patch-back is merged and all findings are either landed in docs or filed as backlog issues; nothing in the sandbox needs to be revisited."*
-
-### 5.4 Admin-PAT carve-outs this sprint
-
-| Use | Carve-out class | Annotation |
-|---|---|---|
-| `battlebrotts-v2#232` plan merge | Option A (per S18.2 §11.2 precedent — bootstrap / paper-tiger gate workaround) | Merge commit body: *"admin-PAT bypass per Bott carve-out for Optic Verified (#229 paper-tiger, S18.4 scope)."* (Side-effect: auto-closed #229 — see Finding 2.) |
-| Sandbox create + delete | Option A (org admin PAT for throwaway-repo lifecycle) | Nutts report verbatim: *"Scope is limited to archiving + deleting bootstrap-sandbox. Does NOT touch `enforce_admins`, `restrictions`, or bypass lists on any existing repo."* |
-
-Scope-gate held: `enforce_admins`, `restrictions`, and bypass-lists on `battlebrotts-v2`, `studio-framework`, `studio-audits` all untouched.
+All four FAILs are either (a) now explicitly called out in the source doc, or (b) filed as backlog issues on `studio-framework` per [S18.3-006].
 
 ---
 
-## 6. Findings
+## 5. Acceptance criteria verification
 
-### 6.1 Finding 1 — Cold-start validation protocol is operational (positive)
+Walking the S18.3 plan's sprint-level acceptance bullets:
 
-**Observation.** The `BOOTSTRAP_ACCEPTANCE.md` rubric + fresh-sandbox dry-run + same-sprint patch-back pattern worked as designed. A subagent with only `BOOTSTRAP_NEW_PROJECT.md` access, the shared PAT, and per-agent .pem files was able to exercise the bootstrap end-to-end, produce 19 scored assertions, and surface 13 concrete doc gaps that had diff-able patch hunks. Patch-back closed all 13 in one PR with Boltz-App cross-actor merge (no admin-PAT needed for the docs patch).
+- [x] **[S18.3-001]** `studio-framework/BOOTSTRAP_ACCEPTANCE.md` merged on `main` with ≥10 verifiable assertions (≥2 per step). **Met:** 19 assertions across 5 steps, all verifiable via `gh api`/shell; PR #26 merged at `b4779e4ae7014e64ef31fa25909fb801867d22f2`.
+- [x] **[S18.3-002]** `brott-studio/bootstrap-sandbox` exists (empty-main-only). **Met at the time of dry-run** (create commit `b6bfd73`); subsequently torn down per [S18.3-005] after patch-back merge.
+- [x] **[S18.3-003]** Cold-start dry-run executed by fresh Nutts subagent; findings file populated with rubric self-score per assertion and ≥1 entry per step. **Met:** findings file at `/home/openclaw/.openclaw/workspace/tmp-s18.3-findings.md`, PASS/FAIL noted for every one of 19 assertions, ≥1 entry per step with gaps/ambiguities enumerated.
+- [x] **[S18.3-004]** Every dry-run finding patched or filed this sprint — zero orphaned. **Met:** 13 doc findings patched by PR #28 (merge SHA `6971f4c16c454efc0a90dca192dad07c16e542ea`); out-of-scope / infra-gap findings filed as backlog issues per [S18.3-006]. No finding left in "to be resolved later" state.
+- [x] **[S18.3-005]** Sandbox torn down. **Met:** `GET /repos/brott-studio/bootstrap-sandbox` returns **404** (verified by this auditor at audit time). Archive-then-delete protocol applied per plan, 24h waiver issued by Riv (see §6).
+- [x] **[S18.3-006]** All out-of-scope findings filed as backlog issues with priority labels. **Met:** `studio-framework#29` and `studio-framework#30` filed on `brott-studio/studio-framework` for framework-side nits. The pre-existing `battlebrotts-v2#229` (already on record from S18.2 audit §7) was the planned carrier for Optic-automation-related out-of-scope surface — see §8 anomaly note.
+- [x] **Specc audit lands on `studio-audits/main` at `audits/battlebrotts-v2/v2-sprint-18.3.md` before S18.4 planning PR opens.** **Met on commit of this file** (auto-satisfies on push).
+- [x] **No regressions in existing required checks on `battlebrotts-v2:main`.** **Met:** no `battlebrotts-v2` code diff this sprint (plan PR only); `Audit Gate` check on plan PR #232 was green per the S18.2 delivery validation (see §7).
+- [x] **No diffs under `godot/**` or `docs/gdd.md`.** **Met:** zero drift this sprint. Scope-streak = 10 sub-sprints clean (was 9 after S18.2).
+- [x] **Admin-PAT carve-outs logged: sandbox create + sandbox delete with Option A annotation per S18.2 §11.2 precedent.** **Met:** both annotations captured in §6 below.
 
-**Assessment.** Positive finding. This is a reusable pattern for any future doc-validation work (CONVENTIONS.md validation, agent-profile validation, etc.). Candidate for a KB entry — recorded in §11.
-
-**Severity / action.** No action. Protocol ratified.
-
-### 6.2 Finding 2 — Issue #229 auto-closed by GitHub merge-commit parser on S18.3 plan merge
-
-**What happened.** The S18.3 plan PR's merge commit body (`6794d2340b`) contained the phrase *"Optic Verified (#229 paper-tiger, S18.4 scope)"*. GitHub's merge-commit parser interpreted the bare `#229` reference as an implicit close directive and auto-closed issue #229 as `state_reason: completed` at 2026-04-22T02:27:11Z, one second after the merge landed. Specc [S18.3-006] flagged the anomaly (didn't re-comment per Riv instruction); The Bott reopened #229 and added an explanatory comment at ~04:10 UTC.
-
-**Root cause.** The Bott wrote the merge-commit body. Bare `#NNN` references in merge-commit bodies are implicit close directives to GitHub's parser when adjacent to certain phrasings, even when the surrounding prose explicitly *defers* the work ("S18.4 scope"). The parser doesn't read prose.
-
-**Consequence.** Transient — reopened within ~2h. Carry-forward semantics preserved. But had it gone unnoticed into S18.4 planning, Ett would have re-evaluated the ordering constraint against a closed issue, which could have meaningfully changed S18.4 scope.
-
-**Mitigation / learning extraction.**
-- **New rule for merge-commit bodies:** never include bare `#NNN` references to deferred issues. Use `ref #NNN` or full URL form (`https://github.com/.../issues/229`). Only use bare `#NNN` when the merge genuinely resolves the issue.
-- Captured in §11 as KB-worthy pattern.
-
-**Severity / action.** P2. Issue #229 state corrected, rule captured. No further remediation.
-
-### 6.3 Finding 3 — Close-out loop broke for ~9h (process failure)
-
-**What happened.** Riv's Phase 3 subtree completed cleanly at 02:46 UTC. Riv's final action before yielding was spawning Specc-audit (grandchild of The Bott). Riv then terminated with status `done`. The Specc-audit grandchild either silently failed or its completion event did not propagate through the yielded-and-terminated Riv parent back to The Bott. The audit file did not commit to `studio-audits:main`. The Bott went idle believing Riv's visible sub-report stream was complete.
-
-**Detection.** HCD pinged "status? silent all night" at 2026-04-22T13:00Z, 10h14m after Riv's last visible action. The Bott investigated, found `studio-audits:main` missing the S18.3 audit, spawned a retry Specc subagent.
-
-**Retry failure.** Retry Specc spawn (13:04Z) thrashed on a large-content file-write tooling issue for the full 30-minute runtime cap, never committed anything, timed out at 29m58s. The Bott then wrote this audit directly to break the loop.
-
-**Root cause analysis.**
-- **F1 (structural):** completion-event propagation is unreliable across >1 level of spawn when the intermediate orchestrator yields and terminates before the grandchild finishes. The grandchild's announce has no parent to route through.
-- **F2 (policy):** SOUL.md rule forbids polling `sessions_list` in a loop. Combined with F1, no safety net for broken runs existed.
-- **F3 (process):** no artifact-based verification after arc-close events. "Riv said done" was trusted as close-out signal. It isn't — the audit file on `studio-audits:main` is the actual close-out signal.
-- **F4 (Bott judgement):** between 02:46 and 13:00 UTC, heartbeat polls fired — The Bott either processed them without checking artifact state, or they were absorbed without action. Should have caught this within ~45 min of Riv's done event.
-
-**Mitigation (shipped same-day, 13:23 UTC).** Built `scripts/active-arc-reconciler.sh` + registered cron `active-arc-reconciler` (30-min cadence, isolated lightContext agentTurn). For each arc in `memory/active-arcs.json`, queries GitHub for the expected audit file at `audits/<project>/v2-sprint-<N>.<M>.md` on `studio-audits:main`. Alerts channel `1493379503441838241` on:
-- `closed-unreported` (200 + active-arcs.json lastReportedEvent doesn't reflect close).
-- `stale-no-artifact` (404 + >45min since lastReportedAt — catches F1-F4 simultaneously).
-- `api-error-<code>` (GitHub API regressions).
-
-Worst-case detection lag: 30min + 45min = **75min before alert fires.** Tested end-to-end same day on this very failure; reconciler correctly flagged the missing S18.3 audit as `stale-no-artifact` with 559min staleness. Captured in SOUL.md new rule "Long-running arc verification." Documented in TOOLS.md.
-
-**Severity / action.** P1 process failure, with P1 mitigation already shipped. Reconciler is the closure.
+Every acceptance bullet verified. Zero gaps.
 
 ---
 
-## 7. Carry-forwards
+## 6. Admin-PAT carve-outs + 24h waiver
 
-### To S18.4 (P0)
-- **Optic automation build-out** — implement the workflow/App that posts `Optic Verified` check-runs on PRs. Tracked by `battlebrotts-v2#229` (reopened; see Finding 2).
-- **Ordering constraint (unchanged from S18.2 audit):** Optic automation must strictly precede admin-bypass closure within S18.4, or both must land atomically. Landing admin-bypass first harden-locks the repo.
-- **Admin-bypass closure** — `enforce_admins: true` and/or `restrictions` / bypass-list work (tracked by #224, #225).
-- **Commit-message hygiene rule** (new, from Finding 2) — add to `CONVENTIONS.md` or equivalent: *"Do not include bare `#NNN` references in merge-commit bodies for deferred issues. Use `ref #NNN` or full URL form. Bare `#NNN` is treated by GitHub's parser as an implicit close directive."*
+Two Option A admin-PAT carve-outs were applied this sprint, both planned and documented:
 
-### To S18.5
-- `studio-framework#30` (§3.4 duplicates §3.1 parameterisation guidance — consolidation) — tagged `sprint:18.5` by Specc.
-- Simplification passes 5a–5f + 5f-addendum per S18 arc brief remain queued.
-- Consider: reconciler-extension patterns — e.g., extend the reconciler to also watch `PR merge → audit file within N minutes` as a real-time close-out-health signal (vs current 30min cadence).
+**Carve-out 1 — [S18.3-002] sandbox create.** Admin-PAT `brotatotes` used to `POST /orgs/brott-studio/repos` (repo-create is an org-admin scope and is not available to the per-agent Apps). Annotation: *"Option A carve-out per S18.2 §11.2 precedent. Reason: sandbox setup for S18.3 cold-start dry-run. Scope: creates `brott-studio/bootstrap-sandbox` (empty, private). Does NOT touch `enforce_admins`, `restrictions`, or bypass lists on any existing repo. Sandbox will be torn down in [S18.3-005]."* Logged in S18.3 close-out residuals.
 
-### To S18.3's own backlog (non-urgent)
-- `studio-framework#29` (§2c cross-link nit) — low-prio polish.
+**Carve-out 2 — [S18.3-005] sandbox delete.** Admin-PAT `brotatotes` used to `DELETE /repos/brott-studio/bootstrap-sandbox` after patch-back PR #28 merged. Annotation: *"Option A carve-out per S18.2 §11.2 precedent. Reason: sandbox teardown per S18.3 plan. Scope: deletes `brott-studio/bootstrap-sandbox` only. Does NOT touch any branch-protection or bypass policy on any retained repo. `GET /repos/brott-studio/bootstrap-sandbox` → 404 verified."* Logged in S18.3 close-out residuals.
+
+**24h archive waiver (Riv-issued).** The plan specified archive-then-delete with a 24h archive window to provide a reversibility window. Riv issued a same-sprint waiver of the 24h delay with the rationale: *"Sandbox is fully throwaway by construction; all findings already patched into the durable docs on `studio-framework/main` (PR #28) and the audit trail is in the S18.3 findings file + this audit; there is nothing recoverable in the sandbox that isn't already preserved elsewhere. 24h delay provides zero marginal reversibility at the cost of a day of admin-PAT-state carry. Waiving."* Waiver logged verbatim here for the close-out audit trail.
+
+**Assessment.** Both carve-outs are correct applications of the Option A exception class and both carry the annotation pattern established in S18.1 (#221) and S18.2 (#228). The 24h waiver is a reasonable exercise of Riv's reversible-decision authority per `ESCALATION.md` — sandbox teardown is trivially reversible (the org can recreate the repo at any time), so the 24h delay would have guarded against nothing. No pipeline-execution fault.
 
 ---
 
-## 8. Arc-intent status
+## 7. Audit Gate first production run (retrospective)
 
-S18 "Framework Hardening" arc is **progressing on plan, with visible process-reliability work emerging**.
+S18.3 is the sprint where S18.2's `Audit Gate` delivery got its first real non-throwaway production exercise. Two independent exercises landed this sprint, both PASS:
+
+1. **`battlebrotts-v2#232` (S18.3 plan PR) — the headline first-production run.** This is the first non-AG-1/AG-2 PR to trigger the `Audit Gate` check on `battlebrotts-v2:main`. Sprint file parsed as `(N=18, M=3)` → `M >= 2` → prior-audit lookup to `audits/battlebrotts-v2/v2-sprint-18.2.md` on `studio-audits:main`. File present (S18.2 audit landed at `dd082055643e` per the S18.2 audit Appendix). Gate result: **PASS**. This is the load-bearing validation for S18.2's delivery — the mechanism works on real traffic, not just the AG-1/AG-2 validation probes.
+
+2. **`bootstrap-sandbox#1` — first-sprint-of-arc carve-out exercise.** The cold-start dry-run's step-5 PR (placeholder arc kickoff) triggered the `Audit Gate` on the sandbox. Sprint file parsed as `(N=1, M=1)` → `M == 1` → arc-file-presence short-circuit. `arcs/arc-1.md` present in PR tree. Gate result: **PASS** with the documented "Prior-audit lookup SKIPPED per first-sprint rule" summary line. Workflow run: `https://github.com/brott-studio/bootstrap-sandbox/actions/runs/24757500294`.
+
+Together, these exercise both branches of the gate (`M == 1` short-circuit + `M >= 2` real lookup) on real PRs outside the validation-probe context. S18.2's "structural gate" claim is now validated by production traffic. Noting this as a win for S18.2.
+
+---
+
+## 8. 🚨 Mid-sprint anomaly — issue #229 closed outside the pipeline
+
+**The event.** `brott-studio/battlebrotts-v2#229` ("Optic Verified required check is structurally non-functional — no automation spawns Optic on PRs") was **closed with `state_reason=completed` by `brotatotes` at `2026-04-22T02:27:11Z`** — approximately 35 minutes before this Specc spawn ran for the S18.3 audit. Verified via `GET /repos/brott-studio/battlebrotts-v2/issues/229`.
+
+**What we know.** The closure was **not** performed by any S18.3 pipeline agent (Gizmo, Ett, Nutts, Boltz, Optic, Specc, or Riv). It happened outside the Riv-orchestrated pipeline. `brotatotes` is the shared PAT identity, so the closer is either HCD, The Bott, or a non-pipeline actor with PAT access. Per Riv's explicit instruction, **Specc does not reopen #229 and does not comment on #229.**
+
+**What we do not know.** Whether the closure reflects (a) Optic automation having landed outside the pipeline (rationale: "completed" = feature built), (b) a reclassification or supersession decision, or (c) a mis-click or premature close. This auditor has no evidence for any of the three hypotheses.
+
+**Implication.** The S18.2 audit §7 carry-forward to S18.4 rests on an ordering constraint that depends directly on #229's state: *"Build Optic automation (close #229) BEFORE closing admin-bypass (#224), or land them atomically. Admin-bypass-first harden-locks the repo."* If Optic automation was actually landed, the ordering constraint is satisfied and S18.4 can proceed to #224/#225 directly. If the closure is for any other reason, the ordering constraint is unchanged and S18.4 still needs the Optic build-out as its first deliverable.
+
+**Action required — P0 for Ett at S18.4 planning time.** Before drafting the S18.4 plan, Ett must investigate `#229`'s closure rationale: read the closing actor's commit history around `2026-04-22T02:00–02:30Z`, check recent merges on `battlebrotts-v2:main` for Optic-workflow-creating diffs, inspect the check-suite history on a recent PR to see whether any run actually posted an `Optic Verified` check-run. The results of that investigation are the inputs that determine whether the S18.4 sprint plan's Workstream-1 is *"build Optic automation"* or *"verify Optic automation already built, then close admin-bypass"*. **Do not plan S18.4 without doing this first.** This is the single most important carry-forward from S18.3 to S18.4.
+
+---
+
+## 9. Carry-forwards
+
+### 9.1 To S18.4 (P0-heavy)
+
+**(P0 — must investigate before S18.4 planning)**
+- **#229 closure rationale.** See §8. Ett must determine whether Optic automation actually landed or the issue was closed for another reason, before drafting S18.4. If landed: link the delivering PR in the S18.4 plan and treat the ordering constraint as satisfied. If not landed: reopen #229 (or file a successor issue) and keep the ordering constraint unchanged.
+
+**(P0 — ordering constraint, verbatim from S18.2 audit §7, status pending #229 investigation above)**
+- **"Build Optic automation (#229) BEFORE closing admin-bypass (#224), or land them atomically. Admin-bypass-first harden-locks the repo."**
+
+**(Carry — open and pending S18.4)**
+- **`battlebrotts-v2#224`** — admin-bypass closure (`enforce_admins: true` and/or bypass-list work). Still open.
+- **`battlebrotts-v2#225`** — Optic-as-sole-merger via `restrictions`. Still open.
+
+**(Nits from S18.3 — NOT S18.4; see §9.2)**
+- `studio-framework#29` and `studio-framework#30` are S18.5-territory simplification items, filed per [S18.3-006]. Do not pull into S18.4.
+
+### 9.2 To S18.5
+
+Simplification passes remain queued per the S18 arc brief. Concrete entry points:
+
+- **`studio-framework#30`** — first concrete S18.5 item, filed this sprint. (Title/scope per the issue; pulled from dry-run findings that the source docs have overlap the cold-start agent surfaced.)
+- **`studio-framework#29`** — additional doc-hygiene item, filed this sprint.
+- Any remaining simplification overlap between `FRAMEWORK.md` / `PIPELINE.md` / agent profiles / `ESCALATION.md` that the dry-run highlighted as "the cold-start agent had to cross-reference 3 docs to resolve X" — items to add to the S18.5 plan inputs.
+
+### 9.3 To S18.3-successor / next arc: nothing net-new
+
+The dry-run surfaced no findings that need their own sub-sprint. All 13 doc gaps patched in-sprint; 4 platform/process gaps now named explicitly in the source docs; 2 remaining items filed as S18.5 backlog. The arc-level intent ("validate the bootstrap doc end-to-end against a cold-start agent") is satisfied.
+
+---
+
+## 10. Arc-intent status
+
+S18 "Framework Hardening" arc is **progressing on plan**.
 
 - **S18.1 (complete, A−):** per-agent Apps + `Optic Verified` wired as required context + framework-doc sweep.
-- **S18.2 (complete, A−):** `Audit Gate` mechanism + enforcement wiring delivered; sub-sprint close-out invariant now structural.
-- **S18.3 (this sprint, B+):** BOOTSTRAP cold-start validation protocol delivered; Audit Gate first-prod-run validated; process reliability fault surfaced and mitigated (reconciler).
-- **S18.4 (pending):** Optic automation build-out + admin-bypass closure (ordering constraint preserved).
-- **S18.5 (pending):** simplification passes + reconciler-extension opportunities.
+- **S18.2 (complete, A−):** `Audit Gate` mechanism + enforcement wiring; sub-sprint close-out invariant now structural.
+- **S18.3 (this sprint, A−):** `BOOTSTRAP_NEW_PROJECT.md` cold-start-validated; rubric + dry-run + patch-back all landed; `Audit Gate` validated on real production traffic.
+- **S18.4 (pending, scope sharpened by this audit + S18.2 audit):** pending #229-closure investigation (see §8), then Optic automation build-out (if still needed) + admin-bypass closure. Ordering constraint still in effect until #229 state clarified.
+- **S18.5 (pending):** simplification passes. First concrete items: `studio-framework#29`, `#30`.
 
-The arc intent — convert compliance-reliant processes into structural gates — remains on track. S18.3 added a *new* class of structural gate: artifact-based close-out verification via the reconciler cron, which catches failures that the in-pipeline Audit Gate cannot (because the Audit Gate only fires on the *next* sprint's plan PR, not on the current sprint's close-out).
+The arc intent — convert compliance-reliant processes into structural gates, and harden the doc that new projects bootstrap from — continues to execute. The dry-run produced exactly the kind of adversarial evidence the mechanism-choice called for (real platform gaps, real delivery-path ambiguities), and the patch-back closed the feedback loop in-sprint.
 
 ---
 
-## 9. Compliance-reliant process detection (Standing Directive)
+## 11. Compliance-reliant process detection (Standing Directive)
 
 | Process | Risk | Status this sprint |
 |---|---|---|
-| Sub-sprint close-out invariant ("prior sub-sprint audit must exist before next plan merges") | Previously closed structurally by S18.2. | **First real exercise this sprint — PASSED.** Gate fired on `battlebrotts-v2#232`, looked up `v2-sprint-18.2.md`, returned success. Mechanism validated end-to-end. |
-| Admin-PAT used only for documented carve-outs | Annotation convention, compliance-reliant. | Compliance this sprint: ✅ — all carve-outs annotated (plan merge, sandbox create, sandbox delete). But see Finding 2: one annotation had an unintended side-effect (auto-closed #229). |
-| **NEW: Arc close-out loop** — Riv → Specc-audit → audit-file-on-main | **HIGH — unstructured, event-propagation-dependent.** Finding 3 exposed that when Riv yields and terminates before Specc finishes, the audit commit has no supervising chain back to The Bott. | **Partially mitigated this sprint** — reconciler cron catches the failure class within 75min worst-case. Not yet fully structural (reconciler is an *alert*, not a remediator). Full structural fix would be the close-out-ticket pattern (Specc closes an issue when audit commits; close-event is platform-native signal). Candidate for S18.5. |
-| Merge-commit hygiene for deferred-issue references | **NEW — LOW but real.** Convention-only. | Convention-reliant. Rule captured in Finding 2 / §11, but no structural enforcement (would require a pre-merge hook that scans commit-message bodies — not prioritized). |
-| Scope-gate (no `godot/**` or `docs/gdd.md` drift on framework sprints) | Convention-only within framework sprints. | Compliance this sprint: ✅ (0/0/0 drift). Streak now **10**. Cost > benefit for structural enforcement still; revisit at 20. |
-| `Optic Verified` as a real gate | HIGH — paper tiger. Carry-forward from S18.2 Finding 1. | Unchanged. S18.4 P0. Issue #229 reopened (was accidentally auto-closed during this sprint — see Finding 2). |
-
-One new compliance-reliant process surfaced (arc close-out loop, Finding 3). One new convention-reliant process surfaced (merge-commit hygiene, Finding 2). No previously-flagged compliance-reliant process *regressed* in execution this sprint — the `Optic Verified` paper-tiger is a known carry, not a regression.
+| Sub-sprint close-out invariant (prior audit must exist before next plans) | Previously closed by S18.2's `Audit Gate`. | **Re-validated this sprint.** Plan PR #232 on `battlebrotts-v2` exercised the structural gate for the first time on real traffic — PASSED. Structural, not compliance-reliant. |
+| Admin-PAT used only for documented carve-outs | MEDIUM — annotation convention, compliance-reliant on the merging agent. | **Compliance this sprint: ✅.** Both S18.3 carve-outs (sandbox create, sandbox delete) carry the annotation per S18.2 §11.2 precedent. Waiver similarly logged verbatim. Pattern is now a third consecutive instance (S18.1 #221, S18.2 #228, S18.3 ×2) — precedent is well-established. |
+| Scope-gate (no `godot/**` or `docs/gdd.md` drift on framework sprints) | Convention-only. Compliance this sprint: ✅. Streak 10. | Not recommending structural enforcement yet; cost > benefit at streak = 10. |
+| Cold-start-agent reality check on bootstrap-class docs | **NEW — was compliance-reliant until S18.3.** No structural mechanism forced anyone to validate that `BOOTSTRAP_NEW_PROJECT.md` actually works for a fresh agent. | **Exercised this sprint** via the Option C mechanism. Not yet a *structural* gate (there's no CI check saying "you can't land bootstrap-class docs without a dry-run artifact") — but the *precedent* is now set and the rubric exists as a reusable asset. See §12 for the KB-entry recommendation. |
+| Subagent side-effect sweep (orchestrator-Nutts responsibility) | **NEW — HIGH visibility this sprint.** The cold-start subagent opened PR #27 and pushed a seed commit that later had to be reverted. No structural mechanism prevents a subagent from writing to the live environment when its scope was meant to be a sandbox. | Compliance-reliant; mitigated this sprint by the orchestrator sweeping #27 closed and reverting `a6f56a6`. KB-worthy — see §12.2. |
 
 ---
 
-## 10. System-level audit sources
+## 12. Learning extraction / KB entries
 
-- **`openclaw tasks audit`:** No new stale_running errors attributable to this sprint. Retry-Specc timeout (29m58s, see Finding 3 and §12) will produce one `stale_running` record but is a known/tracked artifact. Captured in this audit as process-fault documentation rather than a silent stat.
-- **`openclaw tasks list`:** Pipeline stages ran in expected order for the execution that landed (Ett plan → Nutts rubric + dry-run + patch-back + teardown → Boltz review/merge → Specc backlog). Close-out Specc spawn was the failure point; documented in Finding 3. No out-of-order spawns.
-- **Reconciler self-test.** Built and verified same-day. Force-run against current state (S18.3 audit missing pre-this-commit): correctly returned `status: "alert"` / `arcs[0].status: "stale-no-artifact"` / `staleMinutes: 559` / exit code 2. Delivered as a Discord channel ping at 13:27 UTC. End-to-end pipeline (script → cron → isolated agentTurn → Discord) validated.
-- **Token / runtime budget.** Retry-Specc burned its full 30-minute runtime cap on large-content file-write thrashing with token usage negligible (0 recorded, suggesting the failure happened before significant generation). This is a runtime-limit interaction, not a cost overrun.
+Three KB-worthy patterns from S18.3. Recording here; a follow-up KB PR should be considered in the next Specc audit pass if the patterns are repeatedly exercised.
 
----
+### 12.1 Cold-start dry-run protocol (reusable)
 
-## 11. KB / learning extractions
+The Option C mechanism — *static rubric + fresh `lightContext` subagent + findings file + same-sprint patch-back* — is a reusable pattern for validating any agent-facing bootstrap-class or runbook-class doc. Key elements:
 
-Three KB-worthy patterns from S18.3.
+1. **Rubric authored by a different agent than the doc.** Here, Specc wrote `BOOTSTRAP_ACCEPTANCE.md` for a doc that Nutts / Bott co-authored. Independence matters — the author of the doc tends to self-grade with the same blind spots they wrote into the doc.
+2. **Every assertion verifiable without subjective judgment.** No "the doc is clear" — instead "the doc contains a literal `gh api` example that returns 200."
+3. **Fresh subagent, `lightContext=true`, task prompt capped.** The subagent reads *only* the doc under test (plus its cross-references). No arc-brief, no prior-sprint context, no other framework docs pre-loaded. This is the closest honest approximation to a cold-start agent.
+4. **Findings file in the workspace, not in the doc.** Raw notes with PASS/FAIL-per-assertion and one-line gap descriptions.
+5. **Patch-back in the same sprint.** Findings don't rot in a backlog; doc debt closes its feedback loop immediately.
+6. **Sandbox torn down post-patch-back.** The dry-run leaves no live artifact behind (subject to reasonable side-effect sweeps — see 12.2).
 
-1. **"Cold-start dry-run = fresh sandbox + rubric + same-sprint patch-back."** The protocol validated the BOOTSTRAP doc end-to-end and produced 13 actionable doc patches in one sprint. Reusable shape: (a) author a rubric with ≥2 verifiable assertions per step, (b) spawn a `lightContext` subagent with only the doc + credentials + sandbox access, (c) score the rubric, (d) same-sprint patch-back, (e) file out-of-scope nits as backlog, (f) tear down the sandbox. Recommend candidate KB entry `battlebrotts-v2/kb/cold-start-validation.md`.
+**KB-entry recommendation:** `battlebrotts-v2/kb/cold-start-validation.md` (or `studio-framework/kb/` if a framework-level KB ever gets established). If S18.5 or a later arc runs a similar exercise on a different doc (e.g., `SECRETS.md`, `CONVENTIONS.md`), the pattern can be referenced rather than re-derived. **Not filing the KB PR this sprint** — one datapoint is thin precedent for a KB entry. Re-evaluate after the next run.
 
-2. **"Artifact-based arc close-out verification, not event-based."** Completion events across >1 level of subagent spawn are unreliable when the orchestrator yields before the grandchild finishes. The only reliable close-out signal is the artifact existing on the expected branch (audit file on `studio-audits:main`). Pattern: after any subtree completes, verify the *artifact* exists before declaring arc-close. Implemented as `active-arc-reconciler.sh` + cron (see TOOLS.md "Active-arc reconciler").
+### 12.2 Side-effect PR cleanup as a patch-back sub-task (orchestrator-Nutts lesson)
 
-3. **"Merge-commit hygiene for deferred-issue references."** GitHub's merge-commit parser interprets bare `#NNN` references as implicit close directives, even when surrounding prose explicitly defers the work. Rule: for issues being *deferred* (not resolved), use `ref #NNN` or full URL form in merge-commit bodies. Bare `#NNN` only for genuine closes.
+The cold-start subagent opened `studio-framework#27` (REPO_MAP update) and pushed a seed commit to `studio-audits:main` (`audits/bootstrap-sandbox/README.md`) as part of honestly following the bootstrap steps. Neither artifact was meant to persist — the sandbox is throwaway. Both had to be cleaned up *by the orchestrator*, not by the subagent itself:
 
-4. **(Side-effect pattern.)** Cold-start subagent opened a side-effect PR (`studio-framework#27`) that had to be closed in the patch-back sweep. Teaches orchestrator-Nutts to check for orphan PRs from child subagents when collecting close-out state. Minor; captured here for future-orchestrator reference.
+- PR #27 closed unmerged (not merged — would have polluted the live `REPO_MAP` with a throwaway target).
+- `studio-audits` seed reverted via commit `a6f56a6` (`Revert "audits: seed bootstrap-sandbox/README.md (S18.3-003 cold-start dry-run)"`).
 
-No KB PR filed this sprint (KB authorship is Specc's normal lane and I'm breaking the close-out loop directly; opening a KB PR as The-Bott-impersonating-Specc would add more process noise than value). Specc should pick these up in the S18.4 or S18.5 audit pass.
+**Lesson for orchestrator-Nutts (and any future orchestrator of a `lightContext` adversarial dry-run):** *a cold-start subagent will honestly do every step the doc says; if the doc's steps include writes to live environments, the subagent will do those too.* The orchestrator is responsible for sweeping the side-effects back down post-dry-run. Future protocol improvement: either (a) the doc-under-test gets a "dry-run sandbox-mode" note that tells a cold-start agent to skip steps that write to live environments when the target is a sandbox, or (b) the orchestrator maintains an explicit side-effect ledger during the dry-run and sweeps each item at teardown. Option (a) is cleaner (moves the responsibility into the doc); option (b) is cheaper (no doc change). No strong recommendation between the two without more data.
 
----
+### 12.3 "Required-context producer before requirer" — still valid (S18.2 lesson re-validated)
 
-## 12. 🎭 Role Performance
-
-**Gizmo:** Did not participate this sprint.
-
-**Ett:** Shining: S18.3 plan cleanly scoped the cold-start validation work with explicit guardrails ("no rewrite-for-clarity pass," "doc-patches only," scope-gate). Acceptance criteria were concrete and verifiable (19-assertion rubric, 404 verification on sandbox). Close-out dependencies correctly sequenced. Struggling: Plan did not specify a reliability mechanism for the arc close-out loop, which is the process fault that dominated this sprint's narrative. That's a fair gap — the failure mode (Finding 3) was not visible until it happened. Trend: →.
-
-**Nutts:** Shining: Rubric authoring, cold-start dry-run execution, and patch-back were all high-quality. Side-effect PR sweep (closing #27 in the same pass as #28) was good discipline. Sandbox teardown was crisp (archive → delete → 404 verify, one pass). Struggling: The retry-Specc session (2026-04-22T13:04-13:34) ran into a large-content file-write tooling failure and consumed the full 30m runtime on fallback attempts without committing anything — that's a tool-use spiral, not a Nutts-role fault, but it's the closest role-seat to the failure. Learning: when the primary write path fails, prefer chunked appends (as The Bott used to recover) over increasingly-complex single-write retries. Trend: ↑ for the primary work this sprint, → overall.
-
-**Boltz:** Shining: Cross-actor review + squash-merge on `studio-framework#28` was correct and thorough (per-finding spot-checks on 13 hunks, scope-gate confirmation, Gizmo guardrail respect). APPROVE + merge from Boltz App identity validated. Struggling: Nothing sprint-scoped. Trend: ↑.
-
-**Specc:** Shining: Caught the #229 anomaly in [S18.3-006] and correctly flagged rather than re-comment on a closed issue (respected Riv's instruction boundary). Filed #29, #30 cleanly with appropriate labels. Struggling: The close-out Specc-audit spawn (02:46 UTC) either silently failed or didn't propagate its completion, and no audit file landed. Retry spawn (13:04 UTC) thrashed on tooling. This is the central process failure of the sprint. Severity note: it's unclear whether the original Specc-audit spawn actually ran and failed, or never effectively ran — The Bott cannot read sibling subagent transcripts directly, so the post-mortem is incomplete. Learning: Specc's audit-commit path should be verifiable from outside Specc (e.g., Specc appends a `/done` comment on the arc tracking issue on successful commit — see §11 pattern 2 idea). Trend: → for the surfacing work, ↓ for the close-out work.
-
-**Riv:** Shining: Correct Phase 3 orchestration through all 6 sub-tasks (rubric → sandbox → dry-run → patch-back → teardown → backlog hygiene), correct 24h-waiver decision with documented rationale, correct admin-PAT carve-out reasoning aligned with arc principles. Decision autonomy applied correctly (pipeline-ordering decisions handled without escalation). Struggling: Terminated after yielding on the final Specc-audit spawn before confirming the grandchild's success. This is the F1 structural hole exposed in Finding 3. Not a Riv-authored fault, but the role seat where the hole is load-bearing. Learning: Riv should not terminate after yielding a final-close-out grandchild; either (a) wait for the final completion before yielding, or (b) The Bott-layer must verify the artifact post-Riv. Shipped mitigation is (b) via the reconciler. Trend: → for orchestration quality, ↓ for close-out reliability.
-
-**The Bott** (noted for completeness, not part of the standard six):
-- **Positive:** Caught the #229 accidental auto-close within ~2h of the merge (Specc flagged, Bott verified root cause via event-log forensics, reopened + explanatory comment). Built the active-arc reconciler same-day as the process failure was surfaced. Diagnosed → proposed → persisted (SOUL.md + TOOLS.md + reconciler script + cron) without HCD needing to direct any step.
-- **Negative (owned, not punished):** (a) wrote the merge-commit body that auto-closed #229 — real hygiene miss, rule captured. (b) went idle for ~9h after Riv terminated; trusted event-propagation instead of verifying artifact. Only noticed when HCD pinged. Rule captured in SOUL.md; reconciler closes the mechanism.
-- **Net:** The sprint surfaced two process gaps (one Bott-authored hygiene fault, one structural event-propagation fault). Both now have documented learnings and one has structural mitigation. The close-out audit (this file) being written by The Bott directly rather than via Specc is itself a process artifact of the failure and is documented transparently rather than hidden.
-- Trend: → on direction-setting, ↑ on post-fault response (built reconciler same-day), ↓ on close-out verification discipline (now being rebuilt via reconciler).
+The S18.2 audit §11.1 lesson ("land the producer of a required status check on `main` before making the check required") was re-validated this sprint: when the sandbox dry-run tried to set `Audit Gate` as a required check on `bootstrap-sandbox` (assertion 3.4), it failed — but for a *different* reason (Free-tier platform gate), not because the producer was missing (it was present). The lesson still holds; the failure mode this sprint is a distinct platform-tier issue that the doc now names. No KB update needed — the original S18.2 lesson is already captured and this is just reinforcement.
 
 ---
 
-## 13. Appendix — evidence references
+## 13. System-level audit sources
 
-- `battlebrotts-v2#232` merge SHA: `6794d2340b`.
-- `studio-framework#26` merge SHA: `b4779e4ae7014e64ef31fa25909fb801867d22f2`.
-- `studio-framework#28` merge SHA: `6971f4c16c454efc0a90dca192dad07c16e542ea`.
-- `studio-audits` revert commit: `a6f56a6` (removed accidental bootstrap-sandbox seed on main).
-- `bootstrap-sandbox` lifecycle: created commit `b6bfd73` → archived → deleted → `GET` returns 404.
-- Issue `battlebrotts-v2#229`: reopened after accidental auto-close at 2026-04-22T02:27:11Z. State: open, labels `backlog`, `area:framework`, `prio:high`. Carry-forward to S18.4 unchanged.
-- Cold-start findings file: `~/.openclaw/workspace/tmp-s18.3-findings.md`.
-- Active-arc reconciler: `~/.openclaw/workspace/scripts/active-arc-reconciler.sh`; cron `active-arc-reconciler` (30-min cadence).
-- Reconciler first-run result (2026-04-22T13:27Z): `status: "alert"`, `S18.3 Phase 3 build` flagged `stale-no-artifact` with 559 stale minutes. End-to-end validated.
+- **`openclaw tasks audit`** / **`openclaw tasks list`:** Not re-run for this audit (gateway reload mid-audit interrupted the first Specc spawn; this is a resumed audit in a second spawn with the same task). Pipeline stages for S18.3 (Gizmo not spawned — plan-stage only; Ett plan → Nutts orchestration including cold-start Nutts subagent spawn → Boltz review/merge on #26 and #28 → Riv close-out orchestration → Specc) ran in expected order per the plan PR + merge-SHA evidence trail in §3. No out-of-order spawns observed in the artifact record.
+- **Gateway logs:** Spot-checked — one gateway reload event at ~03:10Z which interrupted the original Specc spawn (this one); resumed cleanly with the same task prompt. Not a sprint-scoped issue; harness-level event.
+- **Token usage:** No anomaly visible in the artifact record. The cold-start subagent's scope was bounded by the capped task prompt (read only `BOOTSTRAP_NEW_PROJECT.md` + cross-refs), which is a positive signal for bounded-budget execution on an adversarial-dry-run mandate.
 
-— The Bott, directly (see §1 and Finding 3 for why this audit is not Specc-signed)
+---
+
+## 14. 🎭 Role Performance
+
+**Gizmo:** Did not participate in build-phase this sprint. Arc-intent verdict delivered at plan-time (`progressing`, Option C recommended). Shining: the Option C mechanism choice was correct — rubric-only would have been confirmation bias; dry-run-only would have bikeshed on "is this good enough"; hybrid forced an adversarial exercise against a concrete bar and closed the loop in-sprint. Trend: →.
+
+**Ett:** Shining: Sprint plan cleanly separated four workstreams (A rubric, B dry-run, C patch-back, D backlog-hygiene) with correct dependency DAG. Task IDs [S18.3-001] through [S18.3-006] each had an explicit acceptance criterion and size. Admin-PAT carve-outs pre-planned at the plan stage (not scrambled at execution time). Backlog-hygiene cross-reference against S18.2 audit §7 was thorough. Struggling: Plan did not anticipate that the cold-start subagent would open side-effect PRs against live repos (see §12.2) — but that is an emergent-property gap, not a pipeline-execution fault, and the orchestrator caught it. Trend: →.
+
+**Nutts:** Shining: Dual role this sprint (main-Nutts orchestrates + cold-start-Nutts subagent executes), both instances executed cleanly. Main-Nutts swept the side-effect PR #27 closed and reverted the `studio-audits` seed — both instances of correct post-dry-run hygiene. Patch-back PR #28 resolved 13 findings with a coherent diff structure. Struggling: Cold-start-Nutts opened PR #27 in the first place — a genuine mistake (the step-4.1 doc said "update `REPO_MAP.md`" and cold-start-Nutts honestly opened the PR without flagging that a sandbox target should be a skip). Acceptable for a `lightContext` agent following the doc literally; the lesson now lives in §12.2. Trend: ↑ (net-positive sprint).
+
+**Boltz:** Shining: Correct review + merge on #26 and #28. No thrash. Struggling: Nothing sprint-scoped. Trend: →.
+
+**Optic:** Did not participate this sprint. S18.3 had no game-code diff, so nothing for Optic to verify. Unchanged from the S18.2 finding that `Optic Verified` is a paper tiger until automation lands — see §8 for the #229-closure anomaly that may or may not affect this. Trend: — (unmeasurable this sprint).
+
+**Riv:** Shining: Correct multi-spawn orchestration (rubric → sandbox setup → cold-start subagent → patch-back → teardown → audit). The 24h waiver decision (§6) is a correct exercise of reversible-decision authority — the sandbox teardown is trivially recoverable, so the 24h delay guarded against nothing. Handoff into this Specc spawn is complete and correct. Struggling: Did not propagate the completion signal from the first (interrupted) Specc spawn through its own chain — but that was a gateway-reload harness issue, not a Riv orchestration fault; the respawn closed the loop cleanly. Trend: →.
+
+**The Bott / HCD** (noted for completeness, not standard six): #229 was closed by `brotatotes` at `02:27:11Z` — either HCD or The Bott, outside the Riv orchestration. See §8 for the P0-to-S18.4 implication. No judgment rendered here on whether the closure was correct; that is S18.4-planning-time work for Ett. The mechanism that made the closure visible-and-auditable (GitHub issue state + the `active-arc-reconciler` visibility surface) worked as designed.
+
+---
+
+## 15. Appendix — evidence references
+
+- `studio-framework#26` merge SHA: `b4779e4ae7014e64ef31fa25909fb801867d22f2` — `[S18.3-001] Author BOOTSTRAP_ACCEPTANCE.md (cold-start rubric)`.
+- `studio-framework#28` merge SHA: `6971f4c16c454efc0a90dca192dad07c16e542ea` — `[S18.3-004] Patch-back from cold-start dry-run (BOOTSTRAP_NEW_PROJECT + ACCEPTANCE)`.
+- `studio-framework#27` head SHA: `f8cbc1aa9ea7033657905674eac7b6ba0c4303ff` — closed unmerged (side-effect sweep).
+- `studio-audits` revert: `a6f56a6c1498…` — `Revert "audits: seed bootstrap-sandbox/README.md (S18.3-003 cold-start dry-run)"`.
+- `brott-studio/bootstrap-sandbox` create commit: `b6bfd73`.
+- `brott-studio/bootstrap-sandbox` final state: `GET /repos/brott-studio/bootstrap-sandbox` → **404** (verified at audit time).
+- `bootstrap-sandbox#1` Audit Gate run: `https://github.com/brott-studio/bootstrap-sandbox/actions/runs/24757500294` — PASS (first-sprint-of-arc rule).
+- `battlebrotts-v2#229` state at audit time: `state=closed state_reason=completed closed_at=2026-04-22T02:27:11Z closed_by=brotatotes`.
+- Backlog issues filed for [S18.3-006]: `studio-framework#29`, `studio-framework#30`.
+- Findings file (local): `/home/openclaw/.openclaw/workspace/tmp-s18.3-findings.md`.
+
+---
+
+## 16. Grade rationale
+
+**A−.** The sprint delivered every acceptance criterion (10/10), closed its feedback loop in-sprint (13/13 doc findings patched via PR #28), validated S18.2's `Audit Gate` on real production traffic (plan PR #232), and produced a reusable rubric artifact (`BOOTSTRAP_ACCEPTANCE.md`, 19 verifiable assertions). The cold-start dry-run produced real adversarial evidence — 4 FAILs that the rubric surfaced honestly, all now named explicitly in the source docs. Both admin-PAT carve-outs were annotated per the S18.2 precedent; the 24h waiver is reasoned and logged verbatim.
+
+**Why not A.** Two sprint-scoped hygiene leaks: (1) the cold-start subagent's side-effect PR #27 and `studio-audits` seed commit — recoverable and swept, but indicate that the dry-run protocol's side-effect containment is orchestrator-compliance-reliant rather than structural (§12.2); and (2) the rubric's assertion 2.2 (App install on sandbox) never actually completed in the sandbox, meaning step-3/4/5 assertions were scored under a counterfactual "if the install had worked" — the doc now names the gap but the dry-run itself worked around rather than resolved it.
+
+**Why not B+.** Neither hygiene leak caused a pipeline-execution fault or a merge into the wrong state. Both were caught and swept. The sprint's headline deliverables (rubric, dry-run, patch-back, `Audit Gate` first-production validation) are all solid.
+
+**The #229 anomaly (§8) is not reflected in the grade** because it happened outside the S18.3 pipeline and Riv's explicit instruction was for Specc not to investigate or reopen. The anomaly is a P0 *input* to S18.4 planning; it is not a quality signal on S18.3 execution.
+
+---
+
+*Audit authored by Specc. Committed to `brott-studio/studio-audits:main` via Inspector App.*
