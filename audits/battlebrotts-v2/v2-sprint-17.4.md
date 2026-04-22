@@ -267,16 +267,16 @@ Per Specc profile §1b, every technical residual recorded in an audit must be fi
 
 | Item | Target repo | Filed as |
 |---|---|---|
-| CI-enforced audit gate (§7.1) — prevents sprint loop from advancing past missing audit | `brott-studio/studio-framework` (framework-level) or `brott-studio/studio-audits` (tooling) | **To be filed** as `backlog area:framework prio:high` — see §10.1 below |
-| KB entry: `kb/patterns/headless-pixel-sampling-via-node-tree-compositing.md` (§7.2) | `brott-studio/battlebrotts-v2` | **To be filed** as `backlog area:docs prio:mid` — see §10.2 below |
+| CI-enforced audit gate (§7.1) — prevents sprint loop from advancing past missing audit | `brott-studio/battlebrotts-v2` (CI runs there) | **Filed as [#240](https://github.com/brott-studio/battlebrotts-v2/issues/240)** (`backlog area:framework prio:high`) |
+| KB entry: `kb/patterns/headless-pixel-sampling-via-node-tree-compositing.md` (§7.2) | `brott-studio/battlebrotts-v2` | **Filed as [#241](https://github.com/brott-studio/battlebrotts-v2/issues/241)** (`backlog area:docs prio:mid`) |
 
-### 10.1 — Audit-gate CI enforcement (new)
+### 10.1 — Audit-gate CI enforcement — [#240](https://github.com/brott-studio/battlebrotts-v2/issues/240)
 
-Filing as a new issue on `brott-studio/studio-framework`. Issue title: "Structural audit-gate: CI check blocks sub-sprint N.M+1 plan-merge if v2-sprint-N.M.md not on studio-audits/main." Labels: `backlog`, `area:framework`, `prio:high`. Linked from this audit's §7.1.
+Filed on `brott-studio/battlebrotts-v2` (CI runs there, even though the concern is framework-level). Labels: `backlog`, `area:framework`, `prio:high`. Links back to §7.1 and to the prior retroactive-audit pattern logged in `v2-sprint-17.1.md` §2 and `v2-sprint-16-arc-complete.md`.
 
-### 10.2 — Pixel-sample KB entry (new)
+### 10.2 — Pixel-sample KB entry — [#241](https://github.com/brott-studio/battlebrotts-v2/issues/241)
 
-Filing as a new issue on `brott-studio/battlebrotts-v2`. Issue title: "KB entry — headless-friendly pixel sampling via node-tree alpha compositing (#207 reference pattern)." Labels: `backlog`, `area:docs`, `prio:mid`. Source material: top-of-file docstring in `godot/tests/test_s17_4_001_selected_row_pixels.gd`. Linked from this audit's §7.2.
+Filed on `brott-studio/battlebrotts-v2`. Labels: `backlog`, `area:docs`, `prio:mid`. Source material: top-of-file docstring in `godot/tests/test_s17_4_001_selected_row_pixels.gd`. Links back to §7.2.
 
 ### 10.3 — No backlog-gap items to carry forward from prior audits
 
