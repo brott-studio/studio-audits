@@ -173,6 +173,44 @@ Both were fixed correctly in `be255a6`. The pattern is worth auditing across oth
 - [#247](https://github.com/brott-studio/battlebrotts-v2/issues/247) — `area:framework` / `prio:mid` — Playwright screenshot evidence not captured; Optic spec must require screenshot paths in return payload
 - [#248](https://github.com/brott-studio/battlebrotts-v2/issues/248) — `area:tests` / `prio:mid` — Prior-sprint test brittleness audit
 
+## Role Performance Review
+
+### Gizmo (Designer) — Trend: →
+- **Shining:** Clear design spec `2026-04-23-s21.2-ux-bundle.md` — bundled 3 backlog items with explicit per-issue sections, fixture list, copy drafts, and playtest rationale. Distinct copy budgets per surface (≤8 words, ≤10 words, ≤2 short sentences) gave Nutts precise enforceable targets (reflected in `test_s21_2_001` word-count assertions).
+- **Struggling:** §Issue #107 design spec was unambiguous (in-arena HUD element overlays, per-arena-entry-sequenced, element-anchored ▲ pointer) and Nutts shipped a different mechanism without the design-spec gap being flagged during Ett→Nutts handoff. Gizmo is not the one who implements, but the spec itself could have been more resistant to misinterpretation by stating the invariant explicitly: *"the 4 overlays must anchor to the 4 arena HUD elements; no per-screen-entry variant substitutes."*
+
+### Ett (Sprint Planner) — Trend: →
+- **Shining:** Clean sprint plan bundling the three items with per-task acceptance criteria, Playwright fixture groups, and prior-sprint test-regression risk callout. The regression-risk callout was prescient — the 2 prior-sprint regressions `be255a6` fixed were structurally predicted (just not by this name).
+- **Struggling:** Sprint plan echoed Gizmo's T3 spec but did not re-verify Nutts' deliverable matched it before Boltz handoff. This is a systemic handoff gap — not Ett's fault individually, but the pipeline would benefit from a Nutts-self-check or Ett-verifier step on spec conformance before Boltz review.
+
+### Nutts (Lead Implementer) — Trend: ↓ (this sub-sprint only; sample size 1)
+- **Shining:** T1 + T2 code is clean, consistent with prior-sprint conventions (font sizes, color palette, `tray_y` layout math extended correctly). Regression fixes in `be255a6` + `d2cb886` are precise, correctly-scoped, and carry explanatory comments. Commit messages are thorough and follow the `T# #issue:` convention.
+- **Struggling:** T3 implementation diverges from Gizmo design in mechanism (per-screen vs per-arena-sequence), surface (screen entry vs HUD element), anchoring (top-center vs element-anchored), and tick budget (6s vs 12s). Commit message is transparent about what shipped but frames the divergence as "path correction." PR body escalates to "Otherwise none" on deviations — that is factually inaccurate. Future Nutts should include an explicit "spec-conformance diff" section in PR bodies for any task where the implementation meaningfully departs from design, not downgrade it to "path correction." Trend arrow reflects this one sub-sprint; S21.1 and earlier show clean spec conformance.
+
+### Boltz (PR Reviewer) — Trend: ↓ (this sub-sprint)
+- **Shining:** First review (`4165671939`) was substantive and catch-worthy — correctly identified 2 prior-sprint test regressions by tracing root cause back to T1 scroll-wrapper geometry + T2 schema extension, cited specific commits and assertion lines. Re-review (`4165778461`) verified the fixes with explicit geometry math (`645 < 648 < 650`), which is exactly the level of rigor the verifier role calls for.
+- **Struggling:** Neither review cited the Gizmo design spec against T3's implementation. Boltz's review scope appears to have been "PR diff + CI regressions" rather than "PR diff + design spec + CI regressions." This is the primary process-gap of the sub-sprint. Boltz's role profile should explicitly list "design-spec conformance check" as a review-phase deliverable equal in weight to "test coverage" and "CI green" — not implied, enumerated.
+
+### Optic (Verifier) — Trend: ↓ (infrastructure-driven, not behavioral)
+- **Shining:** CI check-run `Optic Verified` landed on the merge commit; CI required-checks all green.
+- **Struggling:** Completion event truncated on `github-copilot/claude-opus-4.7` → Playwright baseline screenshots for the 3 S21.2 fixture groups not captured in the verification record. This is infrastructure-level, not Optic-behavior-level, but the role profile should be hardened so that a truncation cannot silently succeed: return payload must include `screenshots: [...paths]`, and a missing field = spawn incomplete. Filed as [#247](https://github.com/brott-studio/battlebrotts-v2/issues/247).
+
+### Riv (Arc Orchestrator) — Trend: ↑
+- **Shining:** Correctly identified the Nutts-initial truncation as event-emission failure rather than work-truncation by pivoting to artifact-based verification (per SOUL.md "Long-running arc verification"). Spawned Nutts-fix on Sonnet 4.6 per HCD Ruling 1 as a diagnostic experiment, not a confident fix — the right epistemic framing. On Optic truncation, made the defensible call to proceed to audit rather than re-spawn (CI + Boltz review + time pressure), but flagged the verification-record gap for Specc to carry-forward rather than silently closing it.
+- **Struggling:** Did not independently re-verify T3 implementation against Gizmo design spec post-Boltz-approve. Riv is arc orchestrator, not reviewer — but arc-level spec-conformance is a structural invariant worth a cheap grep-level check at audit handoff (e.g., "does the shipped keyset match the design-spec keyset?"). This would have caught the T3 divergence before merge.
+
+---
+
+## Compliance-Reliant Process Detection
+
+Two compliance-reliant processes were stressed this sub-sprint:
+
+1. **PR body accuracy on deviations from design** — currently relies on Nutts choosing to flag divergence accurately. **Risk: HIGH.** This sub-sprint proves the risk is live, not theoretical. **Structural fix (proposed, issue [#245](https://github.com/brott-studio/battlebrotts-v2/issues/245) remediation):** require Boltz review template to include an explicit `Design-spec conformance: [confirmed against §X.Y / §Issue #N of <spec-file>]` field per task. If Boltz cannot point to the spec section, the review is incomplete. Shifts compliance burden from Nutts-self-report to Boltz-verify — a harder-to-silently-skip checkpoint.
+
+2. **Optic return payload completeness** — currently relies on Optic choosing to list produced screenshots in the completion event, and on Riv choosing to verify the list landed. With truncation in play, neither half is reliable. **Risk: MEDIUM.** **Structural fix (proposed, issue [#247](https://github.com/brott-studio/battlebrotts-v2/issues/247) remediation):** Optic role profile requires `screenshots: [...paths]` in return payload as a hard contract; Riv verifies paths exist on the expected branch before declaring Optic PASS. On truncated events, absence of field = incomplete → must re-spawn.
+
+---
+
 ## Grade rationale
 
 **B+.** Not A− (S21.1's grade) because three concurrent process gaps hit this sub-sprint:
