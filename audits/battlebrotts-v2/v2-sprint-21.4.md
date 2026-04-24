@@ -184,29 +184,29 @@ No new task health regressions attributable to S21.4.
 
 ## Carry-forwards
 
-### Issue 1 — CI silent-0-assertion gap [framework, medium-high priority]
+### Issue 1 — CI silent-0-assertion gap [framework, medium-high priority] (#258)
 
 **Context:** PR-B (#255) merged with `Engine.get_ticks_msec` (wrong API for Godot 4.4) because the test runner exited 0 — the test file was syntactically/parse-safe but the API misuse only manifests at runtime. The CI exit-code gate is insufficient when a test script no-ops due to dependency parse errors or missing runtime context.
 
 **Proposed fix (Boltz, from PR #257 review comment):** Fail the CI step on any `T == 0` Results block or on missing test results entirely. A test run that reports zero assertions should be treated as a structural CI failure, not a pass.
 
-**Priority:** medium-high. **Area:** `area:ci`, `area:framework`. Bundle into S21.5 or a framework-hardening sprint.
+**Priority:** medium-high. **Area:** `area:ci`, `area:framework`. Bundle into S21.5 or a framework-hardening sprint. Filed as [#258](https://github.com/brott-studio/battlebrotts-v2/issues/258).
 
-### Issue 2 — Visual overlap: NextLeaguePathIndicator + BrottBrain label [ux, low priority]
+### Issue 2 — Visual overlap: NextLeaguePathIndicator + BrottBrain label [ux, low priority] (#259)
 
 **Context:** `NextLeaguePathIndicator` (y=418) and BrottBrain unlock label (y=420) visually overlap on ResultScreen when both `bronze_unlocked && brottbrain_unlocked` are true simultaneously. PR-C (#256) was correct-by-spec but the layout collision is a visual polish issue discovered in Boltz review.
 
 **Proposed fix:** Adjust vertical positioning — either stack with a 24px gap or conditionally offset one label when both are shown. Non-correctness, layout-polish only.
 
-**Priority:** low. **Area:** `area:ux`. Defer to a UX-polish sprint.
+**Priority:** low. **Area:** `area:ux`. Defer to a UX-polish sprint. Filed as [#259](https://github.com/brott-studio/battlebrotts-v2/issues/259).
 
-### Issue 3 — "Bronze" hardcoded in league-progression helpers [tech-debt, low priority]
+### Issue 3 — "Bronze" hardcoded in league-progression helpers [tech-debt, low priority] (#260)
 
 **Context:** `_next_league_path_text()` and `_league_progress_indicator_text()` helpers in the league surfacing code hardcode `"Bronze"`. Currently correct (only bronze unlock is gated; `bronze_unlocked` is the sentinel), but will need generalization when silver/gold league unlock is implemented. Boltz flagged in PR #256 review.
 
 **Proposed fix:** Parameterize the league name through a constant or enum lookup. Low urgency until silver/gold content is added.
 
-**Priority:** low. **Area:** `area:game-code`. File for future league-expansion sprint.
+**Priority:** low. **Area:** `area:game-code`. File for future league-expansion sprint. Filed as [#260](https://github.com/brott-studio/battlebrotts-v2/issues/260).
 
 ---
 
@@ -285,6 +285,6 @@ Not graded below B+ because:
 | #105 | Closed ✅ | Closed at PR-A #254 merge (`8c03676c`) |
 | #106 | Closed ✅ | Closed at PR-B #255 + hot-patch #257 (`97cca322`) |
 | #108 | Closed ✅ | Closed at PR-C #256 merge (`81f0e932`) |
-| [New: S21.4 CF-1] | Open → filed | CI silent-0-assertion gap (see carry-forwards §) |
-| [New: S21.4 CF-2] | Open → filed | Visual overlap NextLeaguePathIndicator + BrottBrain label |
-| [New: S21.4 CF-3] | Open → filed | "Bronze" hardcoded in league-progression helpers |
+| [#258](https://github.com/brott-studio/battlebrotts-v2/issues/258) | Open → filed | CI silent-0-assertion gap (see carry-forwards §) |
+| [#259](https://github.com/brott-studio/battlebrotts-v2/issues/259) | Open → filed | Visual overlap NextLeaguePathIndicator + BrottBrain label |
+| [#260](https://github.com/brott-studio/battlebrotts-v2/issues/260) | Open → filed | "Bronze" hardcoded in league-progression helpers |
