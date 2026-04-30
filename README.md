@@ -47,7 +47,7 @@ Each project gets its own folder. Specc writes to the appropriate project folder
 ## 🎮 Latest Sim Reports
 
 ### `battlebrotts-v2`
-- **[2026-04-29](sim-reports/battlebrotts-v2/2026-04-29.md)** · 11 runs · ⚠️ 1 balance flag
+- **[2026-04-30](sim-reports/battlebrotts-v2/2026-04-30.md)** · 20 runs · ⚠️ 2 balance flags
 
 _Auto-updated by `battlebrotts-v2/.github/workflows/sim.yml`_
 <!-- SIM-REPORT:END -->
