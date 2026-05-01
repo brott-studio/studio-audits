@@ -1,0 +1,482 @@
+{
+  "gate": "arc-m-m5-full-run-completability",
+  "timestamp": "2026-05-01T14:08:53.987878+00:00",
+  "seeds": "1-20",
+  "total_runs": 20,
+  "parse_errors": 0,
+  "terminal_state_breakdown": {
+    "win": 0,
+    "death": 20,
+    "timeout": 0
+  },
+  "gate_criteria": {
+    "min_wins_required": 2,
+    "runs_reaching_run_complete": 0,
+    "criterion_1_pass": false,
+    "criterion_2_parse_errors_pass": true,
+    "criterion_3_t1_regression": {
+      "SCOUT": {
+        "runs": 10,
+        "t1_wins": 7,
+        "t1_win_rate": 0.7,
+        "pass": true
+      },
+      "BRAWLER": {
+        "runs": 5,
+        "t1_wins": 3,
+        "t1_win_rate": 0.6,
+        "pass": true
+      },
+      "FORTRESS": {
+        "runs": 5,
+        "t1_wins": 3,
+        "t1_win_rate": 0.6,
+        "pass": true
+      }
+    },
+    "overall_pass": false
+  },
+  "per_chassis": {
+    "SCOUT": {
+      "runs": 10,
+      "run_wins": 0,
+      "battles_won_avg": 2.6,
+      "battles_won_min": 0,
+      "battles_won_max": 6
+    },
+    "BRAWLER": {
+      "runs": 5,
+      "run_wins": 0,
+      "battles_won_avg": 2.4,
+      "battles_won_min": 0,
+      "battles_won_max": 4
+    },
+    "FORTRESS": {
+      "runs": 5,
+      "run_wins": 0,
+      "battles_won_avg": 1.0,
+      "battles_won_min": 0,
+      "battles_won_max": 2
+    }
+  },
+  "all_runs": [
+    {
+      "run_idx": 0,
+      "seed": 1,
+      "chassis_name": "SCOUT",
+      "terminal_state": "death",
+      "battles_won": 3,
+      "battles_lost": 1,
+      "reward_picks": 3,
+      "final_loadout": {
+        "armor": 0,
+        "chassis": 0,
+        "modules": [
+          2
+        ],
+        "weapons": [
+          4,
+          0,
+          5
+        ]
+      },
+      "wall_clock_seconds": 16.912
+    },
+    {
+      "run_idx": 1,
+      "seed": 2,
+      "chassis_name": "BRAWLER",
+      "terminal_state": "death",
+      "battles_won": 4,
+      "battles_lost": 1,
+      "reward_picks": 4,
+      "final_loadout": {
+        "armor": 2,
+        "chassis": 1,
+        "modules": [
+          1,
+          0
+        ],
+        "weapons": [
+          2,
+          6
+        ]
+      },
+      "wall_clock_seconds": 20.212
+    },
+    {
+      "run_idx": 2,
+      "seed": 3,
+      "chassis_name": "SCOUT",
+      "terminal_state": "death",
+      "battles_won": 6,
+      "battles_lost": 1,
+      "reward_picks": 6,
+      "final_loadout": {
+        "armor": 2,
+        "chassis": 0,
+        "modules": [
+          4
+        ],
+        "weapons": [
+          4,
+          1,
+          5,
+          3
+        ]
+      },
+      "wall_clock_seconds": 32.672
+    },
+    {
+      "run_idx": 3,
+      "seed": 4,
+      "chassis_name": "SCOUT",
+      "terminal_state": "death",
+      "battles_won": 0,
+      "battles_lost": 1,
+      "reward_picks": 0,
+      "final_loadout": {
+        "armor": 0,
+        "chassis": 0,
+        "modules": [],
+        "weapons": [
+          4
+        ]
+      },
+      "wall_clock_seconds": 8.754
+    },
+    {
+      "run_idx": 4,
+      "seed": 5,
+      "chassis_name": "FORTRESS",
+      "terminal_state": "death",
+      "battles_won": 0,
+      "battles_lost": 1,
+      "reward_picks": 0,
+      "final_loadout": {
+        "armor": 0,
+        "chassis": 2,
+        "modules": [],
+        "weapons": [
+          4
+        ]
+      },
+      "wall_clock_seconds": 8.712
+    },
+    {
+      "run_idx": 5,
+      "seed": 6,
+      "chassis_name": "BRAWLER",
+      "terminal_state": "death",
+      "battles_won": 0,
+      "battles_lost": 1,
+      "reward_picks": 0,
+      "final_loadout": {
+        "armor": 0,
+        "chassis": 1,
+        "modules": [],
+        "weapons": [
+          2
+        ]
+      },
+      "wall_clock_seconds": 8.507
+    },
+    {
+      "run_idx": 6,
+      "seed": 7,
+      "chassis_name": "FORTRESS",
+      "terminal_state": "death",
+      "battles_won": 2,
+      "battles_lost": 1,
+      "reward_picks": 2,
+      "final_loadout": {
+        "armor": 0,
+        "chassis": 2,
+        "modules": [
+          4
+        ],
+        "weapons": [
+          4,
+          0
+        ]
+      },
+      "wall_clock_seconds": 14.063
+    },
+    {
+      "run_idx": 7,
+      "seed": 8,
+      "chassis_name": "FORTRESS",
+      "terminal_state": "death",
+      "battles_won": 2,
+      "battles_lost": 1,
+      "reward_picks": 2,
+      "final_loadout": {
+        "armor": 0,
+        "chassis": 2,
+        "modules": [
+          2,
+          0
+        ],
+        "weapons": [
+          4
+        ]
+      },
+      "wall_clock_seconds": 14.6
+    },
+    {
+      "run_idx": 8,
+      "seed": 9,
+      "chassis_name": "SCOUT",
+      "terminal_state": "death",
+      "battles_won": 4,
+      "battles_lost": 1,
+      "reward_picks": 4,
+      "final_loadout": {
+        "armor": 2,
+        "chassis": 0,
+        "modules": [
+          0,
+          2
+        ],
+        "weapons": [
+          4
+        ]
+      },
+      "wall_clock_seconds": 23.048
+    },
+    {
+      "run_idx": 9,
+      "seed": 10,
+      "chassis_name": "SCOUT",
+      "terminal_state": "death",
+      "battles_won": 3,
+      "battles_lost": 1,
+      "reward_picks": 3,
+      "final_loadout": {
+        "armor": 0,
+        "chassis": 0,
+        "modules": [
+          3,
+          1
+        ],
+        "weapons": [
+          4,
+          6
+        ]
+      },
+      "wall_clock_seconds": 22.129
+    },
+    {
+      "run_idx": 10,
+      "seed": 11,
+      "chassis_name": "BRAWLER",
+      "terminal_state": "death",
+      "battles_won": 4,
+      "battles_lost": 1,
+      "reward_picks": 4,
+      "final_loadout": {
+        "armor": 3,
+        "chassis": 1,
+        "modules": [
+          4
+        ],
+        "weapons": [
+          2,
+          3
+        ]
+      },
+      "wall_clock_seconds": 20.533
+    },
+    {
+      "run_idx": 11,
+      "seed": 12,
+      "chassis_name": "FORTRESS",
+      "terminal_state": "death",
+      "battles_won": 0,
+      "battles_lost": 1,
+      "reward_picks": 0,
+      "final_loadout": {
+        "armor": 0,
+        "chassis": 2,
+        "modules": [],
+        "weapons": [
+          4
+        ]
+      },
+      "wall_clock_seconds": 8.575
+    },
+    {
+      "run_idx": 12,
+      "seed": 13,
+      "chassis_name": "SCOUT",
+      "terminal_state": "death",
+      "battles_won": 4,
+      "battles_lost": 1,
+      "reward_picks": 4,
+      "final_loadout": {
+        "armor": 3,
+        "chassis": 0,
+        "modules": [
+          2
+        ],
+        "weapons": [
+          4,
+          2,
+          5
+        ]
+      },
+      "wall_clock_seconds": 22.151
+    },
+    {
+      "run_idx": 13,
+      "seed": 14,
+      "chassis_name": "FORTRESS",
+      "terminal_state": "death",
+      "battles_won": 1,
+      "battles_lost": 1,
+      "reward_picks": 1,
+      "final_loadout": {
+        "armor": 0,
+        "chassis": 2,
+        "modules": [
+          1
+        ],
+        "weapons": [
+          4
+        ]
+      },
+      "wall_clock_seconds": 12.938
+    },
+    {
+      "run_idx": 14,
+      "seed": 15,
+      "chassis_name": "SCOUT",
+      "terminal_state": "death",
+      "battles_won": 4,
+      "battles_lost": 1,
+      "reward_picks": 4,
+      "final_loadout": {
+        "armor": 3,
+        "chassis": 0,
+        "modules": [
+          1
+        ],
+        "weapons": [
+          4,
+          2,
+          0
+        ]
+      },
+      "wall_clock_seconds": 26.653
+    },
+    {
+      "run_idx": 15,
+      "seed": 16,
+      "chassis_name": "BRAWLER",
+      "terminal_state": "death",
+      "battles_won": 4,
+      "battles_lost": 1,
+      "reward_picks": 4,
+      "final_loadout": {
+        "armor": 2,
+        "chassis": 1,
+        "modules": [
+          4,
+          0
+        ],
+        "weapons": [
+          2,
+          6
+        ]
+      },
+      "wall_clock_seconds": 21.314
+    },
+    {
+      "run_idx": 16,
+      "seed": 17,
+      "chassis_name": "BRAWLER",
+      "terminal_state": "death",
+      "battles_won": 0,
+      "battles_lost": 1,
+      "reward_picks": 0,
+      "final_loadout": {
+        "armor": 0,
+        "chassis": 1,
+        "modules": [],
+        "weapons": [
+          2
+        ]
+      },
+      "wall_clock_seconds": 10.024
+    },
+    {
+      "run_idx": 17,
+      "seed": 18,
+      "chassis_name": "SCOUT",
+      "terminal_state": "death",
+      "battles_won": 0,
+      "battles_lost": 1,
+      "reward_picks": 0,
+      "final_loadout": {
+        "armor": 0,
+        "chassis": 0,
+        "modules": [],
+        "weapons": [
+          4
+        ]
+      },
+      "wall_clock_seconds": 10.323
+    },
+    {
+      "run_idx": 18,
+      "seed": 19,
+      "chassis_name": "SCOUT",
+      "terminal_state": "death",
+      "battles_won": 0,
+      "battles_lost": 1,
+      "reward_picks": 0,
+      "final_loadout": {
+        "armor": 0,
+        "chassis": 0,
+        "modules": [],
+        "weapons": [
+          4
+        ]
+      },
+      "wall_clock_seconds": 9.587
+    },
+    {
+      "run_idx": 19,
+      "seed": 20,
+      "chassis_name": "SCOUT",
+      "terminal_state": "death",
+      "battles_won": 2,
+      "battles_lost": 1,
+      "reward_picks": 2,
+      "final_loadout": {
+        "armor": 0,
+        "chassis": 0,
+        "modules": [
+          1
+        ],
+        "weapons": [
+          4,
+          6
+        ]
+      },
+      "wall_clock_seconds": 14.683
+    }
+  ],
+  "anomalies": [
+    "0/20 runs reached SCREEN_RUN_COMPLETE (terminal_state=win). Sim driver 'always accepts loss' on SCREEN_RETRY_PROMPT \u2014 any battle loss immediately ends the run via _show_brott_down(). Reaching the boss (battle_index 14) requires winning all 14 prior battles consecutively. Highest battles_won in this batch: 6 (seed=3, SCOUT). Likely root cause: difficulty curve prevents any run from winning 15 consecutive battles at default stats."
+  ],
+  "battles_won_distribution": {
+    "3": 2,
+    "4": 6,
+    "6": 1,
+    "0": 7,
+    "2": 3,
+    "1": 1
+  },
+  "verdict": "FAIL"
+}
