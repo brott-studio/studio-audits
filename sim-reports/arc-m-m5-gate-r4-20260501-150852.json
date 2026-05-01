@@ -1,0 +1,828 @@
+{
+  "arc": "M",
+  "sprint": "M.5",
+  "round": 4,
+  "timestamp_utc": "2026-05-01T15:08:52.465436+00:00",
+  "hp_config": {
+    "T1": 80,
+    "T2": 90,
+    "T3": 90,
+    "T4": 115,
+    "Boss": 240
+  },
+  "gate_result": "FAIL",
+  "gate_criteria": {
+    "wins_gte2": {
+      "result": "FAIL",
+      "value": 0,
+      "threshold": 2
+    },
+    "parse_errors_zero": {
+      "result": "PASS",
+      "value": 0,
+      "threshold": 0
+    },
+    "scout_t1_gte30pct": {
+      "result": "PASS",
+      "value": 80.0,
+      "threshold": 30
+    },
+    "brawler_t1_gte30pct": {
+      "result": "FAIL",
+      "value": 20.0,
+      "threshold": 30
+    }
+  },
+  "summary": {
+    "total_runs": 20,
+    "wins": 0,
+    "deaths": 20,
+    "parse_errors": 0,
+    "consecutive_fail_round": 4
+  },
+  "per_chassis": {
+    "SCOUT": {
+      "runs": 10,
+      "avg_battles_won": 4.6,
+      "t1_win_rate_pct": 80.0,
+      "t1_pass_count": 8
+    },
+    "BRAWLER": {
+      "runs": 5,
+      "avg_battles_won": 2.4,
+      "t1_win_rate_pct": 20.0,
+      "t1_pass_count": 1
+    },
+    "FORTRESS": {
+      "runs": 5,
+      "avg_battles_won": 1.2,
+      "t1_win_rate_pct": 20.0,
+      "t1_pass_count": 1
+    }
+  },
+  "battles_won_distribution": {
+    "0": 2,
+    "1": 7,
+    "2": 1,
+    "3": 3,
+    "4": 2,
+    "5": 1,
+    "6": 1,
+    "8": 1,
+    "9": 1,
+    "10": 1
+  },
+  "deaths_by_tier": {
+    "T1": 10,
+    "T2": 7,
+    "T3": 3,
+    "T4": 0,
+    "Boss/Win": 0
+  },
+  "raw_runs": [
+    {
+      "battles_lost": 1,
+      "battles_won": 3,
+      "chassis": 0,
+      "chassis_name": "SCOUT",
+      "final_loadout": {
+        "armor": 0,
+        "chassis": 0,
+        "modules": [
+          2
+        ],
+        "weapons": [
+          4,
+          0,
+          5
+        ]
+      },
+      "reward_picks": [
+        {
+          "battle_index": 1,
+          "button_index": 0
+        },
+        {
+          "battle_index": 2,
+          "button_index": 1
+        },
+        {
+          "battle_index": 3,
+          "button_index": 1
+        }
+      ],
+      "schema_version": 1,
+      "seed": 1,
+      "terminal_state": "death",
+      "total_ticks": 720,
+      "wall_clock_seconds": 22.583
+    },
+    {
+      "battles_lost": 1,
+      "battles_won": 1,
+      "chassis": 1,
+      "chassis_name": "BRAWLER",
+      "final_loadout": {
+        "armor": 0,
+        "chassis": 1,
+        "modules": [
+          1
+        ],
+        "weapons": [
+          2
+        ]
+      },
+      "reward_picks": [
+        {
+          "battle_index": 1,
+          "button_index": 0
+        }
+      ],
+      "schema_version": 1,
+      "seed": 2,
+      "terminal_state": "death",
+      "total_ticks": 141,
+      "wall_clock_seconds": 12.049
+    },
+    {
+      "battles_lost": 1,
+      "battles_won": 6,
+      "chassis": 0,
+      "chassis_name": "SCOUT",
+      "final_loadout": {
+        "armor": 2,
+        "chassis": 0,
+        "modules": [
+          4
+        ],
+        "weapons": [
+          4,
+          1,
+          5,
+          3
+        ]
+      },
+      "reward_picks": [
+        {
+          "battle_index": 1,
+          "button_index": 0
+        },
+        {
+          "battle_index": 2,
+          "button_index": 0
+        },
+        {
+          "battle_index": 3,
+          "button_index": 0
+        },
+        {
+          "battle_index": 4,
+          "button_index": 2
+        },
+        {
+          "battle_index": 5,
+          "button_index": 0
+        },
+        {
+          "battle_index": 6,
+          "button_index": 2
+        }
+      ],
+      "schema_version": 1,
+      "seed": 3,
+      "terminal_state": "death",
+      "total_ticks": 819,
+      "wall_clock_seconds": 31.316
+    },
+    {
+      "battles_lost": 1,
+      "battles_won": 3,
+      "chassis": 0,
+      "chassis_name": "SCOUT",
+      "final_loadout": {
+        "armor": 0,
+        "chassis": 0,
+        "modules": [
+          3
+        ],
+        "weapons": [
+          4,
+          5,
+          2
+        ]
+      },
+      "reward_picks": [
+        {
+          "battle_index": 1,
+          "button_index": 0
+        },
+        {
+          "battle_index": 2,
+          "button_index": 0
+        },
+        {
+          "battle_index": 3,
+          "button_index": 2
+        }
+      ],
+      "schema_version": 1,
+      "seed": 4,
+      "terminal_state": "death",
+      "total_ticks": 214,
+      "wall_clock_seconds": 16.538
+    },
+    {
+      "battles_lost": 1,
+      "battles_won": 1,
+      "chassis": 2,
+      "chassis_name": "FORTRESS",
+      "final_loadout": {
+        "armor": 0,
+        "chassis": 2,
+        "modules": [
+          1
+        ],
+        "weapons": [
+          4
+        ]
+      },
+      "reward_picks": [
+        {
+          "battle_index": 1,
+          "button_index": 1
+        }
+      ],
+      "schema_version": 1,
+      "seed": 5,
+      "terminal_state": "death",
+      "total_ticks": 242,
+      "wall_clock_seconds": 11.975
+    },
+    {
+      "battles_lost": 1,
+      "battles_won": 1,
+      "chassis": 1,
+      "chassis_name": "BRAWLER",
+      "final_loadout": {
+        "armor": 0,
+        "chassis": 1,
+        "modules": [
+          2
+        ],
+        "weapons": [
+          2
+        ]
+      },
+      "reward_picks": [
+        {
+          "battle_index": 1,
+          "button_index": 2
+        }
+      ],
+      "schema_version": 1,
+      "seed": 6,
+      "terminal_state": "death",
+      "total_ticks": 151,
+      "wall_clock_seconds": 11.726
+    },
+    {
+      "battles_lost": 1,
+      "battles_won": 0,
+      "chassis": 2,
+      "chassis_name": "FORTRESS",
+      "final_loadout": {
+        "armor": 0,
+        "chassis": 2,
+        "modules": [],
+        "weapons": [
+          4
+        ]
+      },
+      "reward_picks": [],
+      "schema_version": 1,
+      "seed": 7,
+      "terminal_state": "death",
+      "total_ticks": 42,
+      "wall_clock_seconds": 8.972
+    },
+    {
+      "battles_lost": 1,
+      "battles_won": 1,
+      "chassis": 2,
+      "chassis_name": "FORTRESS",
+      "final_loadout": {
+        "armor": 0,
+        "chassis": 2,
+        "modules": [
+          2
+        ],
+        "weapons": [
+          4
+        ]
+      },
+      "reward_picks": [
+        {
+          "battle_index": 1,
+          "button_index": 1
+        }
+      ],
+      "schema_version": 1,
+      "seed": 8,
+      "terminal_state": "death",
+      "total_ticks": 102,
+      "wall_clock_seconds": 11.593
+    },
+    {
+      "battles_lost": 1,
+      "battles_won": 4,
+      "chassis": 0,
+      "chassis_name": "SCOUT",
+      "final_loadout": {
+        "armor": 2,
+        "chassis": 0,
+        "modules": [
+          0,
+          2
+        ],
+        "weapons": [
+          4
+        ]
+      },
+      "reward_picks": [
+        {
+          "battle_index": 1,
+          "button_index": 2
+        },
+        {
+          "battle_index": 2,
+          "button_index": 1
+        },
+        {
+          "battle_index": 3,
+          "button_index": 2
+        },
+        {
+          "battle_index": 4,
+          "button_index": 0
+        }
+      ],
+      "schema_version": 1,
+      "seed": 9,
+      "terminal_state": "death",
+      "total_ticks": 437,
+      "wall_clock_seconds": 23.623
+    },
+    {
+      "battles_lost": 1,
+      "battles_won": 1,
+      "chassis": 0,
+      "chassis_name": "SCOUT",
+      "final_loadout": {
+        "armor": 0,
+        "chassis": 0,
+        "modules": [
+          3
+        ],
+        "weapons": [
+          4
+        ]
+      },
+      "reward_picks": [
+        {
+          "battle_index": 1,
+          "button_index": 1
+        }
+      ],
+      "schema_version": 1,
+      "seed": 10,
+      "terminal_state": "death",
+      "total_ticks": 531,
+      "wall_clock_seconds": 16.879
+    },
+    {
+      "battles_lost": 1,
+      "battles_won": 9,
+      "chassis": 1,
+      "chassis_name": "BRAWLER",
+      "final_loadout": {
+        "armor": 1,
+        "chassis": 1,
+        "modules": [
+          4,
+          1,
+          0,
+          5
+        ],
+        "weapons": [
+          2,
+          3,
+          6
+        ]
+      },
+      "reward_picks": [
+        {
+          "battle_index": 1,
+          "button_index": 2
+        },
+        {
+          "battle_index": 2,
+          "button_index": 0
+        },
+        {
+          "battle_index": 3,
+          "button_index": 2
+        },
+        {
+          "battle_index": 4,
+          "button_index": 2
+        },
+        {
+          "battle_index": 5,
+          "button_index": 2
+        },
+        {
+          "battle_index": 6,
+          "button_index": 0
+        },
+        {
+          "battle_index": 7,
+          "button_index": 2
+        },
+        {
+          "battle_index": 8,
+          "button_index": 2
+        },
+        {
+          "battle_index": 9,
+          "button_index": 0
+        }
+      ],
+      "schema_version": 1,
+      "seed": 11,
+      "terminal_state": "death",
+      "total_ticks": 757,
+      "wall_clock_seconds": 39.411
+    },
+    {
+      "battles_lost": 1,
+      "battles_won": 3,
+      "chassis": 2,
+      "chassis_name": "FORTRESS",
+      "final_loadout": {
+        "armor": 2,
+        "chassis": 2,
+        "modules": [],
+        "weapons": [
+          4,
+          2,
+          6
+        ]
+      },
+      "reward_picks": [
+        {
+          "battle_index": 1,
+          "button_index": 2
+        },
+        {
+          "battle_index": 2,
+          "button_index": 2
+        },
+        {
+          "battle_index": 3,
+          "button_index": 2
+        }
+      ],
+      "schema_version": 1,
+      "seed": 12,
+      "terminal_state": "death",
+      "total_ticks": 296,
+      "wall_clock_seconds": 17.871
+    },
+    {
+      "battles_lost": 1,
+      "battles_won": 8,
+      "chassis": 0,
+      "chassis_name": "SCOUT",
+      "final_loadout": {
+        "armor": 3,
+        "chassis": 0,
+        "modules": [
+          2,
+          4,
+          3
+        ],
+        "weapons": [
+          4,
+          2,
+          5,
+          3,
+          6
+        ]
+      },
+      "reward_picks": [
+        {
+          "battle_index": 1,
+          "button_index": 2
+        },
+        {
+          "battle_index": 2,
+          "button_index": 2
+        },
+        {
+          "battle_index": 3,
+          "button_index": 2
+        },
+        {
+          "battle_index": 4,
+          "button_index": 2
+        },
+        {
+          "battle_index": 5,
+          "button_index": 1
+        },
+        {
+          "battle_index": 6,
+          "button_index": 0
+        },
+        {
+          "battle_index": 7,
+          "button_index": 1
+        },
+        {
+          "battle_index": 8,
+          "button_index": 2
+        }
+      ],
+      "schema_version": 1,
+      "seed": 13,
+      "terminal_state": "death",
+      "total_ticks": 1237,
+      "wall_clock_seconds": 40.721
+    },
+    {
+      "battles_lost": 1,
+      "battles_won": 1,
+      "chassis": 2,
+      "chassis_name": "FORTRESS",
+      "final_loadout": {
+        "armor": 0,
+        "chassis": 2,
+        "modules": [
+          1
+        ],
+        "weapons": [
+          4
+        ]
+      },
+      "reward_picks": [
+        {
+          "battle_index": 1,
+          "button_index": 1
+        }
+      ],
+      "schema_version": 1,
+      "seed": 14,
+      "terminal_state": "death",
+      "total_ticks": 192,
+      "wall_clock_seconds": 13.341
+    },
+    {
+      "battles_lost": 1,
+      "battles_won": 10,
+      "chassis": 0,
+      "chassis_name": "SCOUT",
+      "final_loadout": {
+        "armor": 1,
+        "chassis": 0,
+        "modules": [
+          1,
+          2,
+          3,
+          0
+        ],
+        "weapons": [
+          4,
+          2,
+          0,
+          3,
+          6
+        ]
+      },
+      "reward_picks": [
+        {
+          "battle_index": 1,
+          "button_index": 1
+        },
+        {
+          "battle_index": 2,
+          "button_index": 0
+        },
+        {
+          "battle_index": 3,
+          "button_index": 0
+        },
+        {
+          "battle_index": 4,
+          "button_index": 2
+        },
+        {
+          "battle_index": 5,
+          "button_index": 0
+        },
+        {
+          "battle_index": 6,
+          "button_index": 1
+        },
+        {
+          "battle_index": 7,
+          "button_index": 1
+        },
+        {
+          "battle_index": 8,
+          "button_index": 2
+        },
+        {
+          "battle_index": 9,
+          "button_index": 1
+        },
+        {
+          "battle_index": 10,
+          "button_index": 2
+        }
+      ],
+      "schema_version": 1,
+      "seed": 15,
+      "terminal_state": "death",
+      "total_ticks": 917,
+      "wall_clock_seconds": 41.91
+    },
+    {
+      "battles_lost": 1,
+      "battles_won": 0,
+      "chassis": 1,
+      "chassis_name": "BRAWLER",
+      "final_loadout": {
+        "armor": 0,
+        "chassis": 1,
+        "modules": [],
+        "weapons": [
+          2
+        ]
+      },
+      "reward_picks": [],
+      "schema_version": 1,
+      "seed": 16,
+      "terminal_state": "death",
+      "total_ticks": 59,
+      "wall_clock_seconds": 8.893
+    },
+    {
+      "battles_lost": 1,
+      "battles_won": 1,
+      "chassis": 1,
+      "chassis_name": "BRAWLER",
+      "final_loadout": {
+        "armor": 0,
+        "chassis": 1,
+        "modules": [
+          2
+        ],
+        "weapons": [
+          2
+        ]
+      },
+      "reward_picks": [
+        {
+          "battle_index": 1,
+          "button_index": 0
+        }
+      ],
+      "schema_version": 1,
+      "seed": 17,
+      "terminal_state": "death",
+      "total_ticks": 147,
+      "wall_clock_seconds": 11.99
+    },
+    {
+      "battles_lost": 1,
+      "battles_won": 4,
+      "chassis": 0,
+      "chassis_name": "SCOUT",
+      "final_loadout": {
+        "armor": 0,
+        "chassis": 0,
+        "modules": [
+          3
+        ],
+        "weapons": [
+          4,
+          2,
+          6,
+          0
+        ]
+      },
+      "reward_picks": [
+        {
+          "battle_index": 1,
+          "button_index": 0
+        },
+        {
+          "battle_index": 2,
+          "button_index": 1
+        },
+        {
+          "battle_index": 3,
+          "button_index": 2
+        },
+        {
+          "battle_index": 4,
+          "button_index": 1
+        }
+      ],
+      "schema_version": 1,
+      "seed": 18,
+      "terminal_state": "death",
+      "total_ticks": 324,
+      "wall_clock_seconds": 21.706
+    },
+    {
+      "battles_lost": 1,
+      "battles_won": 5,
+      "chassis": 0,
+      "chassis_name": "SCOUT",
+      "final_loadout": {
+        "armor": 0,
+        "chassis": 0,
+        "modules": [
+          1,
+          5
+        ],
+        "weapons": [
+          4,
+          2,
+          5,
+          6
+        ]
+      },
+      "reward_picks": [
+        {
+          "battle_index": 1,
+          "button_index": 0
+        },
+        {
+          "battle_index": 2,
+          "button_index": 1
+        },
+        {
+          "battle_index": 3,
+          "button_index": 2
+        },
+        {
+          "battle_index": 4,
+          "button_index": 2
+        },
+        {
+          "battle_index": 5,
+          "button_index": 1
+        }
+      ],
+      "schema_version": 1,
+      "seed": 19,
+      "terminal_state": "death",
+      "total_ticks": 371,
+      "wall_clock_seconds": 22.704
+    },
+    {
+      "battles_lost": 1,
+      "battles_won": 2,
+      "chassis": 0,
+      "chassis_name": "SCOUT",
+      "final_loadout": {
+        "armor": 0,
+        "chassis": 0,
+        "modules": [
+          1
+        ],
+        "weapons": [
+          4,
+          6
+        ]
+      },
+      "reward_picks": [
+        {
+          "battle_index": 1,
+          "button_index": 1
+        },
+        {
+          "battle_index": 2,
+          "button_index": 0
+        }
+      ],
+      "schema_version": 1,
+      "seed": 20,
+      "terminal_state": "death",
+      "total_ticks": 698,
+      "wall_clock_seconds": 21.484
+    }
+  ]
+}
