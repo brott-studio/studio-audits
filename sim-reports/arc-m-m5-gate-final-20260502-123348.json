@@ -1,0 +1,27 @@
+{
+  "arc": "M",
+  "sprint": "M.5",
+  "round": "final",
+  "timestamp_utc": "2026-05-02T12:46:00Z",
+  "gate_result": "FAIL",
+  "gate_criteria": {
+    "wins_gte2": {"result": "FAIL", "value": 0, "threshold": 2},
+    "parse_errors_zero": {"result": "PASS", "value": 0, "threshold": 0},
+    "scout_t1_gte30pct": {"result": "PASS", "value": 100.0, "threshold": 30},
+    "brawler_t1_gte30pct": {"result": "PASS", "value": 41.7, "threshold": 30},
+    "fortress_t1_gte30pct": {"result": "PASS", "value": 66.7, "threshold": 30}
+  },
+  "summary": {
+    "total_runs": 20,
+    "wins": 0,
+    "deaths": 20,
+    "parse_errors": 0,
+    "retries_used_total": 60
+  },
+  "per_chassis": {
+    "SCOUT": {"runs": 5, "avg_battles_won": 4.2, "t1_win_rate_pct": 100.0},
+    "BRAWLER": {"runs": 12, "avg_battles_won": 0.83, "t1_win_rate_pct": 41.7},
+    "FORTRESS": {"runs": 3, "avg_battles_won": 0.67, "t1_win_rate_pct": 66.7}
+  },
+  "notes": "Retry model confirmed working (all 20 runs used 3 retries = 60 total). T1 win rates pass GDD floor for all chassis. Gate fails solely on wins_gte2: 0/20 runs reached terminal_state=win. BRAWLER is the worst-performing chassis (avg 0.83 battles_won, 12 of 20 runs). SCOUT performing strongest (avg 4.2 battles_won). Likely cause: difficulty ramp or enemy scaling preventing any run from reaching full completion (15 battles). Needs investigation."
+}
