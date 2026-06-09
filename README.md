@@ -20,7 +20,7 @@ Independent audit reports by Specc. Tamper-proof, leadership-only access.
 - [sprint-11-end](https://github.com/brott-studio/studio-audits/blob/main/audits/battlebrotts-v1/sprint-11-end.md) · B+ · 2026-04-14
 
 ### `battlebrotts-v2` (116 audits)
-**Cadence:** 0 in last 7d · 60 in last 30d
+**Cadence:** 0 in last 7d · 0 in last 30d
 
 **Recent grades (last 10):** A×4 · A-×2 · B+×1 · B×1 · ?×2
 
@@ -31,7 +31,7 @@ Independent audit reports by Specc. Tamper-proof, leadership-only access.
 - [v2-sprint-N.1](https://github.com/brott-studio/studio-audits/blob/main/audits/battlebrotts-v2/v2-sprint-N.1.md) · ? · 2026-05-06
 - [v2-sprint-L.3](https://github.com/brott-studio/studio-audits/blob/main/audits/battlebrotts-v2/v2-sprint-L.3.md) · A · 2026-04-30
 
-_Last updated: 2026-05-20 14:59 UTC · [update workflow](../../actions/workflows/readme-status.yml)_
+_Last updated: 2026-06-09 14:47 UTC · [update workflow](../../actions/workflows/readme-status.yml)_
 <!-- STATUS:END -->
 
 ## Structure
